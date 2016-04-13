@@ -91,10 +91,11 @@ io.on('connection', function(socket) {
         socket.broadcast.emit('leavelobby', socket.userId);
         socket.broadcast.emit('leavelobby', opponentId);
         
-        
+        //TODO - This should call the Megameter constructor which should return an object with the intial game state
         var game = {
             id: Math.floor((Math.random() * 100) + 1),
-            users: {player1: socket.userId, player2: opponentId}
+            users: {player1: socket.userId, player2: opponentId},
+            turn: 1
         };
         
         
@@ -117,18 +118,17 @@ io.on('connection', function(socket) {
     });
     
     
-    //TODO - Handle moves
-    /*
+    
     socket.on('move', function(msg) {
         
         socket.broadcast.emit('move', msg);
-        activeGames[msg.id].units = msg.units;  //syncs client units with server's
-        activeGames[msg.id].hands = msg.hands;  //syncs current hand state
-        activeGames[msg.id].mana = msg.mana;
+        //activeGames[msg.id].units = msg.units;  //syncs client units with server's
+        //activeGames[msg.id].hands = msg.hands;  //syncs current hand state
+        //activeGames[msg.id].mana = msg.mana;
         
         
     });
-    */
+    
     
     
 });
