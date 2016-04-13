@@ -1,16 +1,16 @@
 <!-- public/views/home.html -->
 
-<div class="jumbotron text-center" ng-controller="MainController as main">
+<div class="jumbotron text-center" ng-controller="MainController">
 
-    <div id='page-login' ng-show="main.showLogin">
+    <div id='page-login' ng-show="showLogin">
         <div class='logo'></div>
-        <input id='username' ng-model="main.userName">
-        <button id='login' ng-click="main.onLogin()">Click to Login</button>
+        <input id='username' ng-model="userName">
+        <button id='login' ng-click="onLogin()">Click to Login</button>
     </div>
         
-    <div id='page-lobby' ng-show="main.showLobby">
+    <div id='page-lobby' ng-show="showLobby">
         
-        <h1>Welcome, {{main.userName}}!</h1>
+        <h1>Welcome, {{userName}}!</h1>
         <h2>Active games</h2>
         <div id='gamesList'>
             No active games
@@ -26,9 +26,10 @@
         </div>
     </div>
     
-    <div id='page-game' ng-show="main.showLobby">
+    <div id='page-game' ng-show="showGame">
     
         <!-- MAIN GAME DESIGN HERE -->
+        <textarea id='gameTextArea' ng-model="console" readonly></textarea>
         
     </div>
     

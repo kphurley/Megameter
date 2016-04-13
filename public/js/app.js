@@ -1,2 +1,2 @@
 
-angular.module('megameter', ['ngRoute', 'appRoutes', 'MainCtrl', 'PlayCtrl']);
+angular.module('megameter', ['ngRoute', 'appRoutes', 'MainCtrl']);

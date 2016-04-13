@@ -31,7 +31,7 @@ socket.on('gameadd', function(msg) {
 socket.on('joingame', function(msg) {
     console.log("joined as game id: " + msg.game.id );   
     playerNum = msg.player;
-    initGame(msg.game);
+    //initGame(msg.game);
     
     //shouldn't need these-  angular is handling showing and hiding the divs    
     //$('#page-lobby').hide();
