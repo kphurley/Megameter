@@ -1,7 +1,35 @@
 <!-- public/views/home.html -->
 
-<div class="jumbotron text-center">
-    <h1>Home Page 4 Life</h1>
+<div class="jumbotron text-center" ng-controller="MainController as main">
 
-    <p>{{ main.tagline }}</p>
+    <div id='page-login' ng-show="main.showLogin">
+        <div class='logo'></div>
+        <input id='username' ng-model="main.userName">
+        <button id='login' ng-click="main.onLogin()">Click to Login</button>
+    </div>
+        
+    <div id='page-lobby' ng-show="main.showLobby">
+        
+        <h1>Welcome, {{main.userName}}!</h1>
+        <h2>Active games</h2>
+        <div id='gamesList'>
+            No active games
+        </div>
+        <h2>Online players</h2>
+            
+        <div id='userList'>
+            No users online
+        </div>
+        
+        <div id='aiList'>
+            <a href="/play" class="btn btn-default">Easy AI</a>
+        </div>
+    </div>
+    
+    <div id='page-game' ng-show="main.showLobby">
+    
+        <!-- MAIN GAME DESIGN HERE -->
+        
+    </div>
+    
 </div>

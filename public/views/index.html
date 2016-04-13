@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <base href="/">
 
-    <title>Starter Node and Angular</title>
+    <title>Megameter - A Mille Bornes Clone</title>
 
     <!-- CSS -->
     <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.min.css">
@@ -14,15 +14,21 @@
     <!-- JS -->
     <script src="libs/angular/angular.min.js"></script>
     <script src="libs/angular-route/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    
 
     <!-- ANGULAR CUSTOM -->
-    <script src="js/controllers.js"></script>
-    <!--<script src="js/controllers/NerdCtrl.js"></script>
-    <script src="js/services/NerdService.js"></script>-->
+    <script src="js/mainController.js"></script>
+    <script src="js/playController.js"></script>
+    <!--<script src="js/controllers/NerdCtrl.js"></script>-->
+    
     <script src="js/appRoutes.js"></script>
     <script src="js/app.js"></script>
+    <script src="js/socketHandlers.js"></script>
+    
 </head>
-<body ng-app="sampleApp" ng-controller="MainController as main">
+<body ng-app="megameter">
 <div class="container">
 
     <!-- HEADER -->
@@ -31,13 +37,13 @@
             <a class="navbar-brand" href="/">Megameter</a>
         </div>
 
-        <!-- LINK TO OUR PAGES. ANGULAR HANDLES THE ROUTING HERE -->
+        <!-- LINK TO OUR PAGES. ANGULAR HANDLES THE ROUTING HERE 
         <ul class="nav navbar-nav">
             <li><a href="/">Home</a></li>
             <li><a href="/play">Play</a></li>
-        </ul>
+        </ul>  -->
     </nav>
-
+    
     <!-- ANGULAR DYNAMIC CONTENT -->
     <div ng-view></div>
 
