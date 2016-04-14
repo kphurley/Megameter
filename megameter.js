@@ -4,12 +4,14 @@ var Megameter = function(game){
     this.game = game;
     this.deck = new Deck();
     
+    var hands = this.deck.dealHands();
+    
     //TODO - these need to eventually support more than 2 players
     this.board = {
         
         playingArea: [
             {
-                hand: [],
+                hand: hands[0],
                 discard: [],
                 km: [],
                 status: [],
@@ -18,7 +20,7 @@ var Megameter = function(game){
                 score: 0
             },
             {
-                hand: [],
+                hand: hands[1],
                 discard: [],
                 km: [],
                 status: [],
@@ -108,7 +110,16 @@ Megameter.prototype.getBoardState = function(){
 
 var Deck = function(){
     
-    this.cards = [];
+    this.numberCards = [200, 200, 200, 200, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 
+      75, 75, 75, 75, 75, 75, 75, 75, 75, 75, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25];
+    this.remedyCards = ['GS','GS','GS','GS','GS', 'GS', 'ST', 'ST','ST', 'ST','ST', 'ST', 'RP','RP','RP','RP','RP','RP',
+      'GO', 'GO', 'GO', 'GO', 'GO', 'GO', 'GO','GO', 'GO', 'GO', 'GO', 'GO', 'GO', 'GO'];
+    this.attackCards = ['OOG','OOG','OOG', 'FLT','FLT','FLT', 'ACC','ACC','ACC', 'STP', 'STP', 'STP', 'STP', 'STP'];
+    this.speedLimitCards = ['SPDL','SPDL','SPDL','SPDL'];
+    this.speedCards = ['ENDSL', 'ENDSL', 'ENDSL', 'ENDSL', 'ENDSL','ENDSL'];
+    this.safetyCards = ['RGTWAY', 'DRVACE', 'PNCPRF', 'EXTANK'];
+    this.cards = this.numberCards.concat(this.remedyCards).concat(this.attackCards).concat(this.speedLimitCards).concat(speedCards).concat(safetyCards);
+    
     
     //push all of the cards onto the deck
 };
@@ -118,17 +129,37 @@ var Deck = function(){
 Deck.prototype.dealHands = function(){
     
     //shuffle the Deck
+    shuffle(this.cards);
+    var hands = [[],[]];  //TODO - again - bad.  expand for more players
     
     //create two arrays from the deck of cards
+    for(var i = 0; i< 6; i++)
+    {
+        hands[0].push(this.dealOne());
+        hands[1].push(this.dealOne());
+    }
     
-    return [];
+    return hands;
 };
 
 //Deal the top card off of the deck to a player 
 
 Deck.prototype.dealOne = function(){
     
-    //pop the top card off of the deck and return it  
+    //pop the top card off of the deck and return it 
+    var card = this.cards[0];
+    this.cards.splice(0,1);
+    
+    return card;
     
 };
 
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length; i; i -= 1) {
+        j = Math.floor(Math.random() * i);
+        x = a[i - 1];
+        a[i - 1] = a[j];
+        a[j] = x;
+    }
+}

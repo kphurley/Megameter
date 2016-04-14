@@ -26,8 +26,12 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     //a reference to the active game
     $scope.serverGame = null; 
     
+    //current player numbers
+    $scope.playerNum = -1;
+    $scope.otherPlayerNum = -1;
+    
     //a 'console' of sorts to debug the logic of the game - this is temporary
-    $scope.console = 'TESTING';
+    $scope.console = '';
     
     //called when a user puts in their username and clicks the button
     $scope.onLogin = function(){
@@ -47,8 +51,10 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         console.log('card: '+ $scope.cardIndex);
         console.log('area: '+ $scope.areaIndex);
         socket.emit('move', {game: $scope.serverGame, 
-                             move:[$scope.cardIndex, $scope.areaIndex]}
+                             move:[$scope.cardIndex, $scope.areaIndex],
+                            player: $scope.playerNum}
         );
+        
         $scope.isPlayerTurn = false;
         
     };
@@ -76,27 +82,82 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     });
     
     socket.on('move', function(msg) {
+        
+        console.log('move message received');
                 
-        console.log(msg.move);   
-        $scope.console += "\n" + msg.move;
+        if(msg.game.id === $scope.serverGame.id) 
+        {
+            $scope.serverGame = msg.game;
+            
+            if(msg.player === $scope.playerNum){
+            
+                var consoleString = "My Playing Area:" + "\n" +
+                                     "Hand:" + msg.hand + "\n";
+                consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
+                                     "car status:" + msg.board.playingArea[$scope.playerNum].carStatus + "\n" +
+                                     "safeties:" +msg.board.playingArea[$scope.playerNum].safeties + "\n" +
+                                     "speed:" +msg.board.playingArea[$scope.playerNum].speed + "\n" +
+                                     "score:" +msg.board.playingArea[$scope.playerNum].score + "\n";
+                
+                consoleString += "Opponent:" + "\n" +
+                                    "km:" + msg.board.playingArea[$scope.otherPlayerNum].km + "\n" +
+                                     "car status:" + msg.board.playingArea[$scope.otherPlayerNum].carStatus + "\n" +
+                                     "safeties:" +msg.board.playingArea[$scope.otherPlayerNum].safeties + "\n" +
+                                     "speed:" +msg.board.playingArea[$scope.otherPlayerNum].speed + "\n" +
+                                     "score:" +msg.board.playingArea[$scope.otherPlayerNum].score + "\n";
+                                     
+                                     
+                $scope.console = consoleString;
+        
+        }
+        
         //workaround to get Angular to play nice with Socket.io
-        $scope.$apply(function() { 
-            if(!$scope.isPlayerTurn)
-              $scope.isPlayerTurn= true;
-        });
+        //this actually applies the value so that the corresponding element will react
+            
+            $scope.$apply(function() { 
+                
+                $scope.isPlayerTurn = ($scope.serverGame.turn === $scope.playerNum);
+            });
+            
+        
+        }
+        
+        
     });
 
 
     socket.on('joingame', function(msg) {
         console.log("joined as game id: " + msg.game.id );   
-        playerNum = msg.player;
+        $scope.playerNum = msg.player;
+        console.log($scope.playerNum);
+        $scope.playerNum === 0 ? $scope.otherPlayerNum = 1 : $scope.otherPlayerNum = 0;
+        var consoleString = "My Playing Area:" + "\n" +
+                             "Hand:" + msg.hand + "\n";
+        consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
+                             "car status:" + msg.board.playingArea[$scope.playerNum].carStatus + "\n" +
+                             "safeties:" +msg.board.playingArea[$scope.playerNum].safeties + "\n" +
+                             "speed:" +msg.board.playingArea[$scope.playerNum].speed + "\n" +
+                             "score:" +msg.board.playingArea[$scope.playerNum].score + "\n";
+        
+        consoleString += "Opponent:" + "\n" +
+                            "km:" + msg.board.playingArea[$scope.otherPlayerNum].km + "\n" +
+                             "car status:" + msg.board.playingArea[$scope.otherPlayerNum].carStatus + "\n" +
+                             "safeties:" +msg.board.playingArea[$scope.otherPlayerNum].safeties + "\n" +
+                             "speed:" +msg.board.playingArea[$scope.otherPlayerNum].speed + "\n" +
+                             "score:" +msg.board.playingArea[$scope.otherPlayerNum].score + "\n";
+        
+    
         
         //workaround to get Angular to play nice with Socket.io
         $scope.$apply(function() { 
             $scope.showLobby = false;
+            $scope.console = consoleString;
+                
+            
+            console.log(msg.board);
             $scope.showGame = true; 
             $scope.serverGame = msg.game;
-            if(playerNum === 1) $scope.isPlayerTurn = true;
+            $scope.isPlayerTurn = ($scope.playerNum === $scope.serverGame.turn);
         });
         
     });
