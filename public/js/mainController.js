@@ -55,7 +55,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                             player: $scope.playerNum}
         );
         
-        $scope.isPlayerTurn = false;
+        //$scope.isPlayerTurn = false;
         
     };
     
@@ -111,6 +111,13 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
         }
         
+        //IDEA - Check here if the previous move was either a safety or satisfies conditions
+        //for a coup-forre
+        
+        //socket.emit('checkForSpecialMove', {});
+        
+        
+        
         //workaround to get Angular to play nice with Socket.io
         //this actually applies the value so that the corresponding element will react
             
@@ -124,6 +131,18 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
         
     });
+    
+    socket.on('movesuccessful', function(msg)
+        {
+            if(msg.success) {
+                console.log('move registered successfully');
+                
+                $scope.$apply(function() { 
+                
+                    $scope.isPlayerTurn = false;
+                });
+            }
+        });
 
 
     socket.on('joingame', function(msg) {

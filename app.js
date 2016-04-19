@@ -125,13 +125,23 @@ io.on('connection', function(socket) {
     
     socket.on('move', function(msg) {
         
-        
+        //if the move is legal....
         if(activeGames[msg.game.id].playCard(msg.move[0], msg.move[1], msg.player)){
+            
             var activeHand;
+            
+            //swap whose turn it is
             msg.game.turn === 0 ? (msg.game.turn = 1, activeHand = activeGames[msg.game.id].hands.hand1 ): (msg.game.turn = 0, activeHand = activeGames[msg.game.id].hands.hand0);
+            
+            //deal a card to the next player
             activeHand.push(activeGames[msg.game.id].deck.dealOne());
+            
+            //send out game state info - TODO - should only call this once - make it so player matches whose turn it is?
             socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand0, player: 0});
             socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand1, player: 1});
+            
+            //send this to the caller to tell them it's no longer their turn
+            socket.emit('movesuccessful', {success: true});
         }
             
         //activeGames[msg.id].units = msg.units;  //syncs client units with server's
@@ -156,6 +166,8 @@ var Megameter = function(game){
         hand0: this.deck.dealHand(),
         hand1: this.deck.dealHand()
     };
+    
+    this.hands.hand1.push(this.deck.dealOne());  //first draw card for player going first
     
     //TODO - these need to eventually support more than 2 players
     this.board = {
@@ -205,6 +217,11 @@ Megameter.prototype.validateMove = function(card, area, player){
     var status = this.board.playingArea[player].carStatus;
     status.length === 0 ? status = null : status = status[status.length-1];
     
+    var otherPlayer;
+    player === 0 ? otherPlayer = 1 : otherPlayer = 0;
+    var otherSafeties = this.board.playingArea[otherPlayer].safeties;
+    otherSafeties.length === 0 ? otherSafeties = null : otherSafeties = otherSafeties[otherSafeties.length-1];
+    
     //check for completely outlandish entries
     if(card < 0 || card > 6 || area < 0 || area > 6 || player < 0 || player > 3) return false;
     
@@ -239,10 +256,18 @@ Megameter.prototype.validateMove = function(card, area, player){
     
     if(Number(area) === 4 && desiredCard === 'ENDSL') return true;
     
-    if(Number(area) === 5 && (desiredCard === 'OOG' || desiredCard === 'FLT' || desiredCard === 'ACC' || desiredCard === 'STP'))
-        return true;
+    if(Number(area) === 5 && (desiredCard === 'OOG' || desiredCard === 'FLT' || desiredCard === 'ACC' || desiredCard === 'STP')){
         
-    if(Number(area) === 6 && desiredCard === 'SPDL') return true;
+        if(desiredCard === 'OOG' && (otherSafeties === null || otherSafeties.indexOf('EXTANK') === -1)) return true;
+        if(desiredCard === 'FLT' && (otherSafeties === null || otherSafeties.indexOf('PNCPRF') === -1)) return true;
+        if(desiredCard === 'ACC' && (otherSafeties === null || otherSafeties.indexOf('DRVACE') === -1)) return true;
+        if(desiredCard === 'STP' && (otherSafeties === null || otherSafeties.indexOf('RGTWAY') === -1)) return true;
+    }
+        
+        
+    if(Number(area) === 6 && desiredCard === 'SPDL') {
+        if(otherSafeties === null || otherSafeties.indexOf('RGTWAY') === -1) return true;
+    }
     
     return false;
     
@@ -260,7 +285,7 @@ Megameter.prototype.validateMove = function(card, area, player){
 Megameter.prototype.playCard = function(card, area, player){
     
     if(!this.validateMove(card, area, player)) {
-        console.log("Move by player " + player + "did not validate.");
+        console.log("Move by player " + player + " did not validate.");
         return false;
     }
     
@@ -282,12 +307,14 @@ Megameter.prototype.playCard = function(card, area, player){
             break;
         case 3:
             this.board.playingArea[player].safeties.push(desiredCard);
+            //TODO - remove matching hazard card from pile and take a bonus turn
             break;
         case 4:
             this.board.playingArea[player].speed.push(desiredCard);
             break;
         case 5:
             this.board.playingArea[otherPlayer].carStatus.push(desiredCard);
+            //TODO - trigger a coup-forre if appropriate
             break;
         case 6:
             this.board.playingArea[otherPlayer].speed.push(desiredCard);
@@ -303,13 +330,13 @@ Megameter.prototype.playCard = function(card, area, player){
     return true;
 };
 
-/**---------checkForWinner method---------------
+/**---------hasWinner method---------------
  *  
  *  Checks the game state to see if a player has won
  * 
  */
  
- Megameter.prototype.checkForWinner = function(){
+ Megameter.prototype.hasWinner = function(){
      
      for(var i=0; i<board.playingArea[0].km.length; i++)
      {

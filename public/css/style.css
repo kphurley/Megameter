@@ -1,0 +1,69 @@
+
+body{
+    background: url(../assets/last-race.jpg);
+    background-size: cover;
+}
+
+.jumbotron.login{
+    background-color: #fcf8e3;
+    opacity: 1;
+    
+    width: 500px;
+    height: 250px; 
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+
+.jumbotron.lobby{
+    background-color: #fcf8e3;
+    opacity: 1;
+    
+    width: 1600px;
+    height: 900px; 
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+
+.jumbotron.play{
+    background-color: #fcf8e3;
+    opacity: 0.7;
+    
+    width: 1024px;
+    height: 720px; 
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+
+.cardContainer{
+    
+    width: 150px;
+    height: 300px; 
+    
+    background-color: #ffffff;
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
