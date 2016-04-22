@@ -18,7 +18,7 @@
         */
         .when('/play', {
             templateUrl: 'views/play.html',
-            controller: 'PlayController'
+            controller: 'MainController'
         });
 
     $locationProvider.html5Mode(true);

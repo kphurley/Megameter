@@ -3,6 +3,13 @@
 <div class="outerContainer">
 
     <div id="playerContainer">
+    <!-- usage of the DropTarget directive -->
+        <div id="dropbox" dd-drop-target="true">
+            
+            <div ng-repeat="item in dropped">
+                <div class="item">{{item.id}}. {{item.name}}</div>
+            </div>
+        </div>
         
     </div>
     
@@ -11,6 +18,18 @@
     </div>
     
     <div id="handContainer">
+        <div id="items">
+           
+            
+            <!-- usage of the Draggable directive -->
+                
+            <div ng-repeat="item in items">
+                <div dd-draggable="true" class="item" itemid="{{item.id}}">{{item.id}}. {{item.name}}</div>
+            </div>
+                
+                
+            
+        </div>
         
     </div>
     

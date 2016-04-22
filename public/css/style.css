@@ -100,3 +100,31 @@ body{
     overflow-x: hidden;
     overflow-y: auto;
 }
+
+
+         
+#items, #dropbox {
+    left: 50px;
+    position: absolute;
+    width: 200px;
+    min-height: 260px;
+    
+}
+ 
+.item {
+    
+    float: left;
+    min-width: 160px;
+    min-height: 30px;
+    border: 2px solid rgb(5,161,245);
+    margin: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#navlist li
+{
+  display: inline;
+  list-style-type: none;
+  padding-right: 20px;
+}  
