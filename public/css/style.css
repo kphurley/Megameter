@@ -89,7 +89,7 @@ body{
 
 #handContainer {
     width: 800px;
-    height: 300px;
+    height: 250px;
     position: absolute; 
     bottom: 0;
     background: rgba(255, 255, 255, 1);
@@ -103,21 +103,55 @@ body{
 
 
          
-#items, #dropbox {
-    left: 50px;
+#items {
+    
+    left: 100px;
+    top: 20px;
     position: absolute;
-    width: 200px;
-    min-height: 260px;
+    background: rgba(255, 255, 255, 1);
+    width: 800px;
+    min-height: 220px;
+    
+}
+
+#dropbox{
+    
+    left: 10px;
+    top: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+
+#otherDropbox{
+    
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
     
 }
  
 .item {
     
-    float: left;
-    min-width: 160px;
-    min-height: 30px;
-    border: 2px solid rgb(5,161,245);
-    margin: 10px;
+    top: 5px;
+    min-width: 150px;
+    min-height: 210px;
+    margin: -65px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.droppedItem {
+    
+    top: 5px;
+    min-width: 150px;
+    min-height: 210px;
+    margin: 0px;
     cursor: pointer;
     font-weight: bold;
 }

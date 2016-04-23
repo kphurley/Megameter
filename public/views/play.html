@@ -6,9 +6,15 @@
     <!-- usage of the DropTarget directive -->
         <div id="dropbox" dd-drop-target="true">
             
-            <div ng-repeat="item in dropped">
-                <div class="item">{{item.id}}. {{item.name}}</div>
-            </div>
+            <!--Just want the last card to show-->
+            <span class="droppedItem"><img src="{{dropped[dropped.length-1].img}}"></span>
+            
+        </div>
+        
+        <div id="otherDropbox">
+            
+            
+            
         </div>
         
     </div>
@@ -23,9 +29,9 @@
             
             <!-- usage of the Draggable directive -->
                 
-            <div ng-repeat="item in items">
-                <div dd-draggable="true" class="item" itemid="{{item.id}}">{{item.id}}. {{item.name}}</div>
-            </div>
+            <span ng-repeat="item in items">
+                <span dd-draggable="true" class="item" itemid="{{item.id}}"><img src="{{item.img}}"></span>
+            </span>
                 
                 
             

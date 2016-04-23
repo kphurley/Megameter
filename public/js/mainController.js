@@ -229,10 +229,10 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
  
     // array of items for dragging
     $scope.items = [
-        {id: 1, name: "Microwave"}, 
-        {id: 2, name: "Dishwasher" },
-        {id: 3, name: "Phone" },
-        {id: 4, name: "Punching Bag" }
+        {id: 1, name: "DRVACE", img: "assets/mm_card_drivingAce.jpg"}, 
+        {id: 2, name: "200", img: "assets/mm_card_200km.jpg"},
+        {id: 3, name: "GO", img: "assets/mm_card_go.jpg"},
+        {id: 4, name: "RP", img: "assets/mm_card_repairs.jpg"}
     ];
  
     $scope.moveToBox = function(id) {
