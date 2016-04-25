@@ -1,0 +1,43 @@
+<!-- public/views/play.html -->
+
+<div class="outerContainer">
+
+    <div id="playerContainer">
+    <!-- usage of the DropTarget directive -->
+        <div id="dropbox" dd-drop-target="true">
+            
+            <!--Just want the last card to show-->
+            <span class="droppedItem"><img src="{{dropped[dropped.length-1].img}}"></span>
+            
+        </div>
+        
+        <div id="otherDropbox">
+            
+            
+            
+        </div>
+        
+    </div>
+    
+    <div id="opponentContainer">
+        
+    </div>
+    
+    <div id="handContainer">
+        <div id="items">
+           
+            
+            <!-- usage of the Draggable directive -->
+                
+            <span ng-repeat="item in items">
+                <span dd-draggable="true" class="item" itemid="{{item.id}}"><img src="{{item.img}}"></span>
+            </span>
+                
+                
+            
+        </div>
+        
+    </div>
+    
+    
+</div>

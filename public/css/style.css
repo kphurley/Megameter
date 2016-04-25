@@ -1,0 +1,166 @@
+
+body{
+    background: url(../assets/last-race.jpg);
+    background-size: cover;
+}
+
+.jumbotron.login{
+    background-color: #fcf8e3;
+    opacity: 1;
+    
+    width: 500px;
+    height: 250px; 
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-left: 48px;
+    padding-right: 48px;
+    margin: auto;
+}
+
+.jumbotron.lobby{
+    background-color: #fcf8e3;
+    opacity: 1;
+    
+    width: 1600px;
+    height: 900px; 
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-left: 48px;
+    padding-right: 48px;
+    margin: auto;
+}
+
+.jumbotron.play{
+    background-color: #fcf8e3;
+    opacity: 0.7;
+    
+    width: 1024px;
+    height: 720px; 
+    
+    position: absolute;
+    top:0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+
+    margin: auto;
+}
+
+.outerContainer{
+    
+    width: 1300px;
+    height: 800px; 
+    position: relative;
+    background: #fcf8e3;
+    margin: 0 auto;
+}
+
+#playerContainer {
+    width: 635px;
+    height: 450px;
+    position: relative;
+    float: left;
+    background: rgba(63, 121, 189, 1);
+    margin-top: 10px;
+    border-radius: 10px;
+    margin-left: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#opponentContainer {
+    width: 635px;
+    height: 450px;
+    position: relative;
+    float: right;
+    background: rgba(192, 22, 9, 1);
+    margin-top: 10px;
+    border-radius: 10px;
+    margin-right: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+#handContainer {
+    width: 800px;
+    height: 250px;
+    position: absolute; 
+    bottom: 0;
+    background: rgba(255, 255, 255, 1);
+    margin-bottom: 10px;
+    margin-left: 250px;
+    margin-right: 250px;
+    border-radius: 10px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+
+         
+#items {
+    
+    left: 100px;
+    top: 20px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 800px;
+    min-height: 220px;
+    
+}
+
+#dropbox{
+    
+    left: 10px;
+    top: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+
+#otherDropbox{
+    
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+ 
+.item {
+    
+    top: 5px;
+    min-width: 150px;
+    min-height: 210px;
+    margin: -65px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.droppedItem {
+    
+    top: 5px;
+    min-width: 150px;
+    min-height: 210px;
+    margin: 0px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#navlist li
+{
+  display: inline;
+  list-style-type: none;
+  padding-right: 20px;
+}  
