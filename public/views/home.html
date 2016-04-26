@@ -32,6 +32,61 @@
     
     <div id='page-game' ng-show="showGame">
         
+        <div class="outerContainer">
+
+            <div id="playerContainer">
+            <!-- usage of the DropTarget directive -->
+                <div id="dropbox" dd-drop-target="true">
+
+                    <!--Just want the last card to show-->
+                    <span class="droppedItem"><img src="{{dropped[dropped.length-1].img}}"></span>
+
+                </div>
+
+                <div id="kmBox">
+
+                </div>
+
+                <div id="safetyBox"></div>
+
+                <div id="otherDropbox">
+
+                </div>
+
+            </div>
+
+            <div id="opponentContainer">
+
+               <div id="dropbox"></div>
+
+               <div id="kmBox"></div>
+
+               <div id="safetyBox"></div>
+
+               <div id="otherDropbox"></div>
+
+
+            </div>
+
+            <div id="handContainer">
+                <div id="items">
+
+
+                    <!-- usage of the Draggable directive -->
+
+                    <span ng-repeat="item in hand">
+                        <span dd-draggable="true" class="item" itemid="{{item.id}}"><img src="{{item.img}}"></span>
+                    </span>
+
+
+
+                </div>
+
+            </div>
+
+
+        </div>
+        <!--
         <div class="jumbotron lobby">
             
             <div class="form-group">
@@ -41,6 +96,7 @@
                 <button class="form-control" id='submitPlay' ng-show="isPlayerTurn" ng-click="submitPlay()">Submit</button>
             </div>
         </div>
+        -->
         
     </div> 
 </div>

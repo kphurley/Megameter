@@ -16,12 +16,8 @@ body{
     bottom: 0;
     left: 0;
     right: 0;
-<<<<<<< HEAD
     padding-left: 48px;
     padding-right: 48px;
-=======
-
->>>>>>> 082bcd1c1e57f8215eb5c07ba62b9aa05a1c1af9
     margin: auto;
 }
 
@@ -29,20 +25,16 @@ body{
     background-color: #fcf8e3;
     opacity: 1;
     
-    width: 1600px;
-    height: 900px; 
+    width: 800px;
+    height: 600px; 
     
     position: absolute;
     top:0;
     bottom: 0;
     left: 0;
     right: 0;
-<<<<<<< HEAD
     padding-left: 48px;
     padding-right: 48px;
-=======
-
->>>>>>> 082bcd1c1e57f8215eb5c07ba62b9aa05a1c1af9
     margin: auto;
 }
 
@@ -142,6 +134,28 @@ body{
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 150px;
+    min-height: 210px;
+    
+}
+
+#kmBox{
+    
+    right: 10px;
+    top: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 450px;
+    min-height: 210px;
+    
+}
+
+#safetyBox{
+    
+    right: 10px;
+    bottom: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 450px;
     min-height: 210px;
     
 }

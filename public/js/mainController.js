@@ -46,8 +46,10 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
     };
     
-    $scope.submitPlay = function(){
+    $scope.submitPlay = function(card, area){
         
+        if(card !== undefined) $scope.cardIndex = card;
+        if(area !== undefined) $scope.areaIndex = area;
         console.log('card: '+ $scope.cardIndex);
         console.log('area: '+ $scope.areaIndex);
         socket.emit('move', {game: $scope.serverGame, 
@@ -144,12 +146,28 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
             }
         });
 
-
+    //===========CONVERSION TO UI IN PROGRESS======================== 
+    
+    /**
+    * Done - The hand is being rendered from the server.  Cards are draggable
+    * TODO - Refactor and eliminate console-based stuff, validate client-side moves
+    */
+    
     socket.on('joingame', function(msg) {
         console.log("joined as game id: " + msg.game.id );   
         $scope.playerNum = msg.player;
         console.log($scope.playerNum);
         $scope.playerNum === 0 ? $scope.otherPlayerNum = 1 : $scope.otherPlayerNum = 0;
+        
+        
+        //change to hand once other changes are made
+        for(var i=0; i<msg.hand.length; i++){
+            //$scope.items.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
+            $scope.hand.push({id: 0, name: msg.hand[i], img: getCardImage(msg.hand[i])});
+        }
+        
+        
+        
         var consoleString = "My Playing Area:" + "\n" +
                              "Hand:" + msg.hand + "\n";
         consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
@@ -222,45 +240,100 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
          updateUserList();
      };
     
+    var getCardImage = function(cardName){
+        var cardNames = [200, 100, 75, 50, 25, 'GS','ST', 'RP','GO','OOG','FLT','ACC','STP','SPDL', 'ENDSL', 'RGTWAY', 'DRVACE', 'PNCPRF', 'EXTANK'];
+        var index = cardNames.indexOf(cardName);
+        if(index === -1) return null;
+        
+        var fileNames = ['200km', '100km', '75km', '50km', '25km', 'gasoline', 'stop', 'repairs', 'go', 'outOfGas', 'flatTire', 'accident', 'stop', 'speedLimit', 'endOfSpeedLimit', 'rightOfWay', 'drivingAce', 'punctureProof', 'extraTank'];
+        
+        return 'assets/mm_card_'+fileNames[index]+'.jpg';
+    }
+    
     //--------Experimental - drag/drop implementation-----------
      
-    // array for dropped items
-    $scope.dropped = [];
+    // arrays for dropped items
+    $scope.discard = [];  //area 0 
+    $scope.km = [];  //area 1
+    $scope.carStatus = []; //area 2
+    $scope.safeties = []; //area 3
+    $scope.speed = []; //area 4
+    $scope.oppCarStatus = [];  //area 5
+    $scope.oppSpeed = []; //area 6
+    
+    //$scope.dropped = [];
  
-    // array of items for dragging
-    $scope.items = [
-        {id: 1, name: "DRVACE", img: "assets/mm_card_drivingAce.jpg"}, 
-        {id: 2, name: "200", img: "assets/mm_card_200km.jpg"},
-        {id: 3, name: "GO", img: "assets/mm_card_go.jpg"},
-        {id: 4, name: "RP", img: "assets/mm_card_repairs.jpg"}
-    ];
+    // array of items for dragging (the hand)
+    //$scope.items = [];
+    $scope.hand = [];
  
-    $scope.moveToBox = function(id) {
+    $scope.moveToBox = function(id, area) {
  
         for (var index = 0; index < $scope.items.length; index++) {
  
             var item = $scope.items[index];
                  
             if (item.id == id) {
-                // add to dropped array
-                $scope.dropped.push(item);
+                
+                // add to correct container
+                
+                switch(area){
+                    case 'discard':
+                        $scope.discard.push(item);
+                        $scope.areaIndex = 0;
+                        break;
+                    case 'kmBox':
+                        $scope.km.push(item);
+                        $scope.areaIndex = 1;
+                        break;
+                    case 'carStatusBox':
+                        $scope.carStatus.push(item);
+                        $scope.areaIndex = 2;
+                        break;
+                    case 'safetyBox':
+                        $scope.safeties.push(item);
+                        $scope.areaIndex = 3;
+                        break;
+                    case 'speedBox':
+                        $scope.speed.push(item);
+                        $scope.areaIndex = 4;
+                        break;
+                    case 'oppStatusBox':
+                        $scope.oppCarStatus.push(item);
+                        $scope.areaIndex = 5;
+                        break;
+                    case 'oppSpeedBox':
+                        $scope.oppSpeed.push(item);
+                        $scope.areaIndex = 6;
+                        break;
+                    default:
+                        $scope.areaIndex = -1;
+                        break;
+                
+                }
+                
+                //$scope.dropped.push(item);
  
-                // remove from items array
-                $scope.items.splice(index, 1);
+                // remove from hand array
+                $scope.hand.splice(index, 1);
+                
+                //invoke move
+                if($scope.areaIndex !== -1) submitPlay(index, $scope.areaIndex);
+            
             }
-        }
  
-        $scope.$apply();
-    };
+            $scope.$apply();
+        };
  
-    $scope.showItmesLeft = function () {
-        alert($scope.items.length + " items left.");
-    };
-     
-    $scope.showItmesDropped = function () {
-        alert($scope.dropped.length + " items in drop-box.");
-    };
-    
+        $scope.showItmesLeft = function () {
+            alert($scope.items.length + " items left.");
+        };
+
+        $scope.showItmesDropped = function () {
+            alert($scope.dropped.length + " items in drop-box.");
+        };
+    }
+
 }); //end of controller definition
 
 

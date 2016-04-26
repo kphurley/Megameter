@@ -11,10 +11,11 @@ var DropTarget= function () {
  
             element.bind("drop", function(eventObject) {
                  
-                // invoke controller/scope move method
-                scope.moveToBox(parseInt(eventObject.dataTransfer.getData("text")));
+                // invoke controller/scope move method, and pass the intended target's div id
+                scope.moveToBox(parseInt(eventObject.dataTransfer.getData("text")), eventObject.target.id);
                 
-                console.log(eventObject.dataTransfer);
+                //this gets the target div's id!  WAHOO!
+                console.log(eventObject.target.id);
  
                 // cancel actual UI element from dropping, since the angular will recreate a the UI element
                 eventObject.preventDefault();
