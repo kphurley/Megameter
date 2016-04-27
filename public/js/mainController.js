@@ -46,10 +46,10 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
     };
     
-    $scope.submitPlay = function(card, area){
+    $scope.submitPlay = function(){
         
-        if(card !== undefined) $scope.cardIndex = card;
-        if(area !== undefined) $scope.areaIndex = area;
+        //if(card !== undefined) $scope.cardIndex = card;
+        //if(area !== undefined) $scope.areaIndex = area;
         console.log('card: '+ $scope.cardIndex);
         console.log('area: '+ $scope.areaIndex);
         socket.emit('move', {game: $scope.serverGame, 
@@ -163,7 +163,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         //change to hand once other changes are made
         for(var i=0; i<msg.hand.length; i++){
             //$scope.items.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
-            $scope.hand.push({id: 0, name: msg.hand[i], img: getCardImage(msg.hand[i])});
+            $scope.hand.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
         }
         
         
@@ -269,11 +269,14 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
  
     $scope.moveToBox = function(id, area) {
  
-        for (var index = 0; index < $scope.items.length; index++) {
+        for (var index = 0; index < $scope.hand.length; index++) {
  
-            var item = $scope.items[index];
+            var item = $scope.hand[index];
+            
                  
             if (item.id == id) {
+                
+                $scope.cardIndex = index;
                 
                 // add to correct container
                 
@@ -312,27 +315,18 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                 
                 }
                 
-                //$scope.dropped.push(item);
- 
-                // remove from hand array
-                $scope.hand.splice(index, 1);
-                
-                //invoke move
-                if($scope.areaIndex !== -1) submitPlay(index, $scope.areaIndex);
-            
-            }
- 
-            $scope.$apply();
-        };
- 
-        $scope.showItmesLeft = function () {
-            alert($scope.items.length + " items left.");
-        };
-
-        $scope.showItmesDropped = function () {
-            alert($scope.dropped.length + " items in drop-box.");
-        };
-    }
+                break;
+  
+            }            
+  
+        }
+        // remove from hand array
+        if($scope.cardIndex !== -1) $scope.hand.splice($scope.cardIndex, 1);
+        //invoke move
+        if($scope.areaIndex !== -1) $scope.submitPlay($scope.cardIndex, $scope.areaIndex);
+        
+        $scope.$apply();
+    };
 
 }); //end of controller definition
 

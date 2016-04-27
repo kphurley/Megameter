@@ -90,7 +90,7 @@ body{
 }
 
 #handContainer {
-    width: 800px;
+    width: 600px;
     height: 250px;
     position: absolute; 
     bottom: 0;
@@ -108,33 +108,22 @@ body{
 #items {
     
     left: 100px;
-    top: 20px;
+    top: 5px;
     position: absolute;
     background: rgba(255, 255, 255, 1);
-    width: 800px;
+    width: 400px;
     min-height: 220px;
     
 }
 
-#dropbox{
+#discard {
     
-    left: 10px;
-    top: 10px;
+    right: 50px;
+    top: 5px;
     position: absolute;
-    background: rgba(255, 255, 255, 1);
+    background: rgba(240, 0, 0, 0.5);
     width: 150px;
-    min-height: 210px;
-    
-}
-
-#otherDropbox{
-    
-    left: 10px;
-    bottom: 10px;
-    position: absolute;
-    background: rgba(255, 255, 255, 1);
-    width: 150px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 
@@ -149,6 +138,17 @@ body{
     
 }
 
+#carStatusBox{
+    
+    left: 10px;
+    top: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+
 #safetyBox{
     
     right: 10px;
@@ -159,6 +159,42 @@ body{
     min-height: 210px;
     
 }
+
+#speedBox{
+    
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+
+#oppStatusBox{
+    
+    left: 10px;
+    top: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+
+#oppSpeedBox{
+    
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    background: rgba(255, 255, 255, 1);
+    width: 150px;
+    min-height: 210px;
+    
+}
+
+
+
  
 .item {
     
