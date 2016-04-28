@@ -33,6 +33,12 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     //a 'console' of sorts to debug the logic of the game - this is temporary
     $scope.console = '';
     
+    //the id of the div element to drop during a move
+    $scope.droppedElementID = null;
+    
+    //the defined area (div id) receiving the dragged element
+    $scope.dropAreaID = null;
+    
     //called when a user puts in their username and clicks the button
     $scope.onLogin = function(){
         
@@ -46,6 +52,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
     };
     
+    //this submits a player's choice of card to play to the server
     $scope.submitPlay = function(){
         
         //if(card !== undefined) $scope.cardIndex = card;
@@ -83,9 +90,25 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
     });
     
+    //TODO - This works.  HOWEVER - it is possible that a client can tweak this to see the other person's hand!
     socket.on('move', function(msg) {
         
         console.log('move message received');
+        
+        //clear the current UI version of hand and replace it with the server's
+        if(msg.game.id === $scope.serverGame.id) 
+        {
+            if(msg.player === $scope.playerNum){
+                $scope.hand = [];
+
+                for(var i=0; i<msg.hand.length; i++){
+                    $scope.hand.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
+                }
+            }
+        }
+        
+        //TODO - Update other areas of the game board
+        
                 
         if(msg.game.id === $scope.serverGame.id) 
         {
@@ -122,11 +145,9 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
         //workaround to get Angular to play nice with Socket.io
         //this actually applies the value so that the corresponding element will react
+            $scope.isPlayerTurn = ($scope.serverGame.turn === $scope.playerNum);
             
-            $scope.$apply(function() { 
-                
-                $scope.isPlayerTurn = ($scope.serverGame.turn === $scope.playerNum);
-            });
+            $scope.$apply();
             
         
         }
@@ -134,15 +155,27 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
     });
     
+    //This is a validation handler when the server fires a movesuccessful message.
+    //It also ends the player's turn.
+    
+    //TODO - could be modified to handle extra turns due to safeties...
+    
+    //TODO - I also like the idea here to apply the move to the UI at this point
+    
     socket.on('movesuccessful', function(msg)
         {
             if(msg.success) {
                 console.log('move registered successfully');
+                $scope.isPlayerTurn = false;
+                $scope.moveToBox($scope.droppedElementID, $scope.dropAreaID);
                 
+                
+                /*
                 $scope.$apply(function() { 
-                
-                    $scope.isPlayerTurn = false;
+                    
+                    
                 });
+                */
             }
         });
 
@@ -266,18 +299,78 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     // array of items for dragging (the hand)
     //$scope.items = [];
     $scope.hand = [];
- 
-    $scope.moveToBox = function(id, area) {
- 
+    
+    // convertToMove - this function handles a drop request, and converts it to a move
+    // to be passed to submitPlay
+    
+    $scope.convertToMove = function(id, area){
+        
         for (var index = 0; index < $scope.hand.length; index++) {
  
             var item = $scope.hand[index];
-            
                  
             if (item.id == id) {
                 
                 $scope.cardIndex = index;
+                $scope.droppedElementID = id;
+                $scope.dropAreaID = area;
                 
+                switch(area){
+                    case 'discard':
+                        $scope.areaIndex = 0;
+                        break;
+                        
+                    case 'kmBox':
+                        
+                        $scope.areaIndex = 1;
+                        break;
+                        
+                    case 'carStatusBox':
+                        
+                        $scope.areaIndex = 2;
+                        break;
+                        
+                    case 'safetyBox':
+                        
+                        $scope.areaIndex = 3;
+                        break;
+                        
+                    case 'speedBox':
+                        
+                        $scope.areaIndex = 4;
+                        break;
+                        
+                    case 'oppStatusBox':
+                        
+                        $scope.areaIndex = 5;
+                        break;
+                        
+                    case 'oppSpeedBox':
+                        
+                        $scope.areaIndex = 6;
+                        break;
+                        
+                    default:
+                        $scope.areaIndex = -1;
+                        break;
+                
+                }
+                
+                break;
+            }
+        }
+        
+        //attempt the move after the conversion
+        if($scope.areaIndex !== -1) $scope.submitPlay();
+        
+    }
+ 
+    $scope.moveToBox = function(id, area) {
+ 
+        
+ 
+            var item = $scope.hand[$scope.cardIndex];
+            
                 // add to correct container
                 
                 switch(area){
@@ -315,15 +408,14 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                 
                 }
                 
-                break;
+                
   
-            }            
+                       
   
-        }
+        
         // remove from hand array
         if($scope.cardIndex !== -1) $scope.hand.splice($scope.cardIndex, 1);
-        //invoke move
-        if($scope.areaIndex !== -1) $scope.submitPlay($scope.cardIndex, $scope.areaIndex);
+        
         
         $scope.$apply();
     };
