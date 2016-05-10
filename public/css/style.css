@@ -65,7 +65,7 @@ body{
 
 #playerContainer {
     width: 635px;
-    height: 450px;
+    height: 470px;
     position: relative;
     float: left;
     background: rgba(63, 121, 189, 1);
@@ -78,7 +78,7 @@ body{
 
 #opponentContainer {
     width: 635px;
-    height: 450px;
+    height: 470px;
     position: relative;
     float: right;
     background: rgba(192, 22, 9, 1);
@@ -129,12 +129,13 @@ body{
 
 #kmBox{
     
+    padding-left: 70px;
     right: 10px;
     top: 10px;
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 450px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 
@@ -145,18 +146,19 @@ body{
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 150px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 
 #safetyBox{
     
+    padding-left: 70px;
     right: 10px;
     bottom: 10px;
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 450px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 
@@ -167,7 +169,7 @@ body{
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 150px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 
@@ -178,7 +180,7 @@ body{
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 150px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 
@@ -189,7 +191,7 @@ body{
     position: absolute;
     background: rgba(255, 255, 255, 1);
     width: 150px;
-    min-height: 210px;
+    min-height: 220px;
     
 }
 

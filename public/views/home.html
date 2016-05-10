@@ -43,23 +43,41 @@
 
                 </div>
 
-                <div id="kmBox">
-
+                <div id="kmBox" dd-drop-target="true">
+                    <span ng-repeat="card in km">
+                        <span class="item" itemid="{{card.id}}"><img src="{{card.img}}"></span>
+                    </span>
                 </div>
 
-                <div id="safetyBox"></div>
+                <div id="safetyBox" dd-drop-target="true">
+                    <span ng-repeat="card in safeties">
+                        <span class="item" itemid="{{card.id}}"><img src="{{card.img}}"></span>
+                    </span>
+                </div>
 
-                <div id="speedBox"></div>
+                <div id="speedBox" dd-drop-target="true">
+                    <span class="droppedItem"><img src="{{speed[speed.length-1].img}}"></span>
+                </div>
 
             </div>
 
             <div id="opponentContainer">
 
-               <div id="oppStatusBox"></div>
+               <div id="oppStatusBox" dd-drop-target="true">
+                   <span class="droppedItem"><img src="{{oppStatus[oppStatus.length-1].img}}"></span>
+               </div>
 
-               <div id="kmBox"></div>
+               <div id="kmBox">
+                   <span ng-repeat="card in oppKm">
+                        <span class="item" itemid="{{card.id}}"><img src="{{card.img}}"></span>
+                    </span>
+               </div>
 
-               <div id="safetyBox"></div>
+               <div id="safetyBox">
+                   <span ng-repeat="card in oppSafeties">
+                        <span class="item" itemid="{{card.id}}"><img src="{{card.img}}"></span>
+                    </span>
+               </div>
 
                <div id="oppSpeedBox"></div>
 

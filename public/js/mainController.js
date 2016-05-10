@@ -91,6 +91,8 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     });
     
     //TODO - This works.  HOWEVER - it is possible that a client can tweak this to see the other person's hand!
+    //TODO - MAJOR ISSUE - TURN SWITCHING COMPLETELY BROKEN
+    
     socket.on('move', function(msg) {
         
         console.log('move message received');
@@ -100,14 +102,45 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         {
             if(msg.player === $scope.playerNum){
                 $scope.hand = [];
+                $scope.oppKm = [];
+                $scope.oppSafeties = [];
+                $scope.oppStatus = [];
+                $scope.carStatus = [];
 
+                //populate hand
                 for(var i=0; i<msg.hand.length; i++){
                     $scope.hand.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
                 }
+                
+                //populate opposing km cards
+                for(var i=0; i<msg.board.playingArea[$scope.otherPlayerNum].km.length; i++){
+                    $scope.oppKm.push({id: i, name: msg.board.playingArea[$scope.otherPlayerNum].km[i], img: getCardImage(msg.board.playingArea[$scope.otherPlayerNum].km[i])});
+                }
+                
+                //populate opposing safety cards
+                for(var i=0; i<msg.board.playingArea[$scope.otherPlayerNum].safeties.length; i++){
+                    $scope.oppSafeties.push({id: i, name: msg.board.playingArea[$scope.otherPlayerNum].safeties[i], img: getCardImage(msg.board.playingArea[$scope.otherPlayerNum].safeties[i])});
+                }
+                
+                //populate car status cards
+                for(var i=0; i<msg.board.playingArea[$scope.playerNum].carStatus.length; i++){
+                    $scope.carStatus.push({id: i, name: msg.board.playingArea[$scope.playerNum].carStatus[i], img: getCardImage(msg.board.playingArea[$scope.playerNum].carStatus[i])});
+                }
+                
+                //populate opposing status cards
+                for(var i=0; i<msg.board.playingArea[$scope.otherPlayerNum].carStatus.length; i++){
+                    $scope.oppStatus.push({id: i, name: msg.board.playingArea[$scope.otherPlayerNum].carStatus[i], img: getCardImage(msg.board.playingArea[$scope.otherPlayerNum].carStatus[i])});
+                }
+                
+            
+                
+                //msg.board.playingArea[$scope.otherPlayerNum].km
+                //msg.board.playingArea[$scope.otherPlayerNum].carStatus
+                //msg.board.playingArea[$scope.otherPlayerNum].safeties
+                //msg.board.playingArea[$scope.otherPlayerNum].speed
             }
         }
         
-        //TODO - Update other areas of the game board
         
                 
         if(msg.game.id === $scope.serverGame.id) 
@@ -116,7 +149,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
             
             if(msg.player === $scope.playerNum){
             
-                var consoleString = "My Playing Area:" + "\n" +
+                var consoleString = "My turn? " + $scope.isPlayerTurn + "\n" + "My Playing Area:" + "\n" +
                                      "Hand:" + msg.hand + "\n";
                 consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
                                      "car status:" + msg.board.playingArea[$scope.playerNum].carStatus + "\n" +
@@ -160,7 +193,6 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     
     //TODO - could be modified to handle extra turns due to safeties...
     
-    //TODO - I also like the idea here to apply the move to the UI at this point
     
     socket.on('movesuccessful', function(msg)
         {
@@ -170,12 +202,8 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                 $scope.moveToBox($scope.droppedElementID, $scope.dropAreaID);
                 
                 
-                /*
-                $scope.$apply(function() { 
-                    
-                    
-                });
-                */
+                
+                //TODO - check for a win?
             }
         });
 
@@ -201,7 +229,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
         
         
-        var consoleString = "My Playing Area:" + "\n" +
+        var consoleString = "My turn? " + $scope.isPlayerTurn + "\n" + "My Playing Area:" + "\n" +
                              "Hand:" + msg.hand + "\n";
         consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
                              "car status:" + msg.board.playingArea[$scope.playerNum].carStatus + "\n" +
@@ -278,7 +306,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         var index = cardNames.indexOf(cardName);
         if(index === -1) return null;
         
-        var fileNames = ['200km', '100km', '75km', '50km', '25km', 'gasoline', 'stop', 'repairs', 'go', 'outOfGas', 'flatTire', 'accident', 'stop', 'speedLimit', 'endOfSpeedLimit', 'rightOfWay', 'drivingAce', 'punctureProof', 'extraTank'];
+        var fileNames = ['200km', '100km', '75km', '50km', '25km', 'gasoline', 'spareTire', 'repairs', 'go', 'outOfGas', 'flatTire', 'accident', 'stop', 'speedLimit', 'endOfSpeedLimit', 'rightOfWay', 'drivingAce', 'punctureProof', 'extraTank'];
         
         return 'assets/mm_card_'+fileNames[index]+'.jpg';
     }
@@ -293,6 +321,10 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     $scope.speed = []; //area 4
     $scope.oppCarStatus = [];  //area 5
     $scope.oppSpeed = []; //area 6
+    
+    // non-droppable arrays
+    $scope.oppKm = [];
+    $scope.oppSafeties = [];
     
     //$scope.dropped = [];
  

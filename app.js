@@ -119,9 +119,10 @@ io.on('connection', function(socket) {
         delete lobbyUsers[game.users.player2];   
         
         socket.broadcast.emit('gameadd', {gameId: game.id, gameState:game});
+        console.log(megameter.game.turn);
     });
     
-    
+    //TODO - MAJOR ISSUE - TURN SWITCHING NOT WORKING AT ALL
     
     socket.on('move', function(msg) {
         
@@ -129,26 +130,38 @@ io.on('connection', function(socket) {
         if(activeGames[msg.game.id].playCard(msg.move[0], msg.move[1], msg.player)){
             
             var activeHand;
+            msg.game.turn === 0 ? activeHand = activeGames[msg.game.id].hands.hand0 : 
+                                  activeHand = activeGames[msg.game.id].hands.hand1;
             
-            //swap whose turn it is
-            msg.game.turn === 0 ? (msg.game.turn = 1, activeHand = activeGames[msg.game.id].hands.hand1 ): (msg.game.turn = 0, activeHand = activeGames[msg.game.id].hands.hand0);
+            //does the move create a winner?  if so - init the endGame state
+            //note that hasWinner also tallies the score
+            if(activeGames[msg.game.id].hasWinner()){
+                var winningPlayerNum = activeGames[msg.game.id].board.playingArea[0].score >= 1000 ? 0 : 1;
+                console.log('Player ' + winningPlayerNum + ' has won');
+            }
+            // declare winner
             
-            //deal a card to the next player
-            activeHand.push(activeGames[msg.game.id].deck.dealOne());
-            
-            //send out game state info - TODO - should only call this once - make it so player matches whose turn it is?
-            socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand0, player: 0});
-            socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand1, player: 1});
-            
-            //send this to the caller to tell them it's no longer their turn
-            socket.emit('movesuccessful', {success: true});
+            else{          
+                //swap whose turn it is if a safety was not played
+                if(activeGames[msg.game.id].safetyWasPlayed === false){
+                    msg.game.turn === 0 ? (msg.game.turn = 1, activeHand = activeGames[msg.game.id].hands.hand1 ): (msg.game.turn = 0, activeHand = activeGames[msg.game.id].hands.hand0);
+                }
+                
+                //deal a card to the next player (if there is one left)
+                var nextCard = activeGames[msg.game.id].deck.dealOne();
+                if(nextCard !== null)
+                    activeHand.push(nextCard);
+
+                //send out game state info - TODO - should only call this once - make it so player matches whose turn it is?
+                socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand0, player: 0});
+                socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand1, player: 1});
+
+                //send this to the caller to tell them it's no longer their turn
+                socket.emit('movesuccessful', {success: true});
+                console.log(activeGames[msg.game.id].game.turn);
+            }
         }
-            
-        //activeGames[msg.id].units = msg.units;  //syncs client units with server's
-        //activeGames[msg.id].hands = msg.hands;  //syncs current hand state
-        //activeGames[msg.id].mana = msg.mana;
-        
-        
+       
     });
     
     
@@ -159,16 +172,23 @@ io.on('connection', function(socket) {
 // =========== MEGAMETER - CORE FUNCTIONALITY =====================
 
 var Megameter = function(game){
+    
+    //the game info from socket
     this.game = game;
+    
+    //create a new deck for this game to use
     this.deck = new Deck();
     
+    //the hands for each player, simply represented as an array of Strings
     this.hands = {
         hand0: this.deck.dealHand(),
         hand1: this.deck.dealHand()
     };
     
-    this.hands.hand1.push(this.deck.dealOne());  //first draw card for player going first
+    //first draw card for player going first
+    this.hands.hand1.push(this.deck.dealOne());  
     
+    //The playing area/game state object
     //TODO - these need to eventually support more than 2 players
     this.board = {
         
@@ -191,6 +211,9 @@ var Megameter = function(game){
             },
         ]
     };
+    
+    // a flag to control whether or not a safety was just played for bonus turn purposes
+    this.safetyWasPlayed = false;
     
 }
 
@@ -289,6 +312,9 @@ Megameter.prototype.playCard = function(card, area, player){
         return false;
     }
     
+    //Resetting the safety flag each turn
+    this.safetyWasPlayed = false;
+    
     var hand;
     player === 0 ? hand = this.hands.hand0 : hand = this.hands.hand1;
     var desiredCard = hand[card];
@@ -308,6 +334,7 @@ Megameter.prototype.playCard = function(card, area, player){
         case 3:
             this.board.playingArea[player].safeties.push(desiredCard);
             //TODO - remove matching hazard card from pile and take a bonus turn
+            this.safetyWasPlayed = this.applySafetyEffects(desiredCard, player);
             break;
         case 4:
             this.board.playingArea[player].speed.push(desiredCard);
@@ -326,29 +353,32 @@ Megameter.prototype.playCard = function(card, area, player){
     
     hand.splice(card,1);
     
-    console.log("Move by player " + player + "successful.");
+    console.log("Move by player " + player + " successful.");
     return true;
 };
 
 /**---------hasWinner method---------------
  *  
  *  Checks the game state to see if a player has won
- * 
+ *  Also tallies the scores
  */
  
  Megameter.prototype.hasWinner = function(){
      
-     for(var i=0; i<board.playingArea[0].km.length; i++)
+     this.board.playingArea[0].score = 0;
+     this.board.playingArea[1].score = 0;
+     
+     for(var i=0; i<this.board.playingArea[0].km.length; i++)
      {
          this.board.playingArea[0].score += this.board.playingArea[0].km[i];
      }
      
-     for(var j=0; j<board.playingArea[1].km.length; j++)
+     for(var j=0; j<this.board.playingArea[1].km.length; j++)
      {
-         this.board.playingArea[1].score += this.board.playingArea[0].km[j];
+         this.board.playingArea[1].score += this.board.playingArea[1].km[j];
      }
      
-     return board.playingArea[0].score >= 1000 || board.playingArea[1].score >= 1000;
+     return this.board.playingArea[0].score >= 1000 || this.board.playingArea[1].score >= 1000;
     
 };
 
@@ -361,6 +391,38 @@ Megameter.prototype.playCard = function(card, area, player){
 Megameter.prototype.getBoardState = function(){
     return this.board;
 };
+
+/**--------applySafetyEffects----------
+ *
+ *  Helper method to apply the safety card effects to the game board
+ *  card is a String or a Number that represents a card type (200, 'ENDSL', 'GO', etc)
+ */
+
+Megameter.prototype.applySafetyEffects = function(card, playerNum){
+    
+    //convenience variables for use later
+    var statusPile = this.board.playingArea[playerNum].carStatus;
+    var statusLen = this.board.playingArea[playerNum].carStatus.length;
+    
+    //In the following, the attack types are put in the order as the safeties that remove them
+    var safeties = this.deck.safetyCards;
+    var attackTypes = ['STP', 'ACC', 'FLT', 'OOG'];
+    
+    //Get the index of the safety in question, which will in turn also get the corresponding attack card
+    var index = safeties.indexOf(card);
+    
+    //Just in case a non-safety is passed to this function
+    if(index < 0) return false;
+    
+    //splice off the last card off the status pile if it's the corresponding attack card
+    if(statusPile[statusLen-1] === attackTypes[index]) statusPile.splice(statusLen-1, 1);
+    
+    //TODO:  Apply a GO effect if the safety played is Right of Way
+    if(card === 'RGTWAY') statusPile.push('GO');
+    
+    return true; //a safety was successfully played
+}
+
 
 //======== DECK FUNCTIONALITY ==============
 
@@ -409,16 +471,18 @@ Deck.prototype.dealHand = function(){
     return hand;
 };
 
-//Deal the top card off of the deck to a player 
+//Deal the top card off of the deck to a player (or null if there are no cards left) 
 
 Deck.prototype.dealOne = function(){
     
-    //pop the top card off of the deck and return it 
-    var card = this.cards[0];
-    this.cards.splice(0,1);
+    //pop the top card off of the deck and return it if there are cards left
+    if(this.cards.length !== 0){
+        var card = this.cards[0];
+        this.cards.splice(0,1);
+        return card;
+    }
     
-    return card;
-    
+    return null;
 };
 
 function shuffle(a) {
