@@ -126,39 +126,50 @@ io.on('connection', function(socket) {
     
     socket.on('move', function(msg) {
         
-        //if the move is legal....
-        if(activeGames[msg.game.id].playCard(msg.move[0], msg.move[1], msg.player)){
+        //rename the working Megameter game instance for readability 
+        var thisGame = activeGames[msg.game.id];
+        
+        //if it's the correct player's turn and the move is legal....
+        if(msg.player === thisGame.game.turn && 
+           thisGame.playCard(msg.move[0], msg.move[1], msg.player)){
             
-            var activeHand;
-            msg.game.turn === 0 ? activeHand = activeGames[msg.game.id].hands.hand0 : 
-                                  activeHand = activeGames[msg.game.id].hands.hand1;
+            var activeHand, otherHand;
+            thisGame.game.turn === 0 ? (activeHand = thisGame.hands.hand0,
+                                        otherHand = thisGame.hands.hand1): 
+                                  (activeHand = thisGame.hands.hand1,
+                                   otherHand = thisGame.hands.hand0);
             
             //does the move create a winner?  if so - init the endGame state
             //note that hasWinner also tallies the score
-            if(activeGames[msg.game.id].hasWinner()){
-                var winningPlayerNum = activeGames[msg.game.id].board.playingArea[0].score >= 1000 ? 0 : 1;
+            if(thisGame.hasWinner()){
+                var winningPlayerNum = thisGame.board.playingArea[0].score >= 1000 ? 0 : 1;
                 console.log('Player ' + winningPlayerNum + ' has won');
             }
             // declare winner
             
             else{          
                 //swap whose turn it is if a safety was not played
-                if(activeGames[msg.game.id].safetyWasPlayed === false){
-                    msg.game.turn === 0 ? (msg.game.turn = 1, activeHand = activeGames[msg.game.id].hands.hand1 ): (msg.game.turn = 0, activeHand = activeGames[msg.game.id].hands.hand0);
+                if(thisGame.safetyWasPlayed === false){
+                    thisGame.game.turn === 0 ? (thisGame.game.turn = 1, 
+                                           activeHand = thisGame.hands.hand1,
+                                               otherHand = thisGame.hands.hand0): 
+                                           (thisGame.game.turn = 0, 
+                                           activeHand = thisGame.hands.hand0,
+                                           otherHand = thisGame.hands.hand1);
                 }
                 
                 //deal a card to the next player (if there is one left)
-                var nextCard = activeGames[msg.game.id].deck.dealOne();
+                var nextCard = thisGame.deck.dealOne();
                 if(nextCard !== null)
                     activeHand.push(nextCard);
 
                 //send out game state info - TODO - should only call this once - make it so player matches whose turn it is?
-                socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand0, player: 0});
-                socket.broadcast.emit('move', {game: msg.game, board: activeGames[msg.game.id].board, hand: activeGames[msg.game.id].hands.hand1, player: 1});
+                socket.broadcast.emit('move', {game: thisGame.game, board: thisGame.board, hand: activeHand});
+                //socket.broadcast.emit('move', {game: thisGame.game, board: thisGame.board, hand: thisGame.hands.hand1, player: 1});
 
                 //send this to the caller to tell them it's no longer their turn
-                socket.emit('movesuccessful', {success: true});
-                console.log(activeGames[msg.game.id].game.turn);
+                socket.emit('movesuccessful', {success: true, game: thisGame.game, board: thisGame.board, hand: otherHand});
+                console.log(thisGame.game.turn);
             }
         }
        

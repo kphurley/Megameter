@@ -12,6 +12,8 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     $scope.showLogin = true;
     $scope.showLobby = false;
     $scope.showGame = false;
+    
+    //TODO - Is this even necessary anymore?  The game object contains a property determining whose turn it is
     $scope.isPlayerTurn = false;
     
     //numbers to handle move types
@@ -91,98 +93,17 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     });
     
     //TODO - This works.  HOWEVER - it is possible that a client can tweak this to see the other person's hand!
-    //TODO - MAJOR ISSUE - TURN SWITCHING COMPLETELY BROKEN
     
     socket.on('move', function(msg) {
         
-        console.log('move message received');
         
         //clear the current UI version of hand and replace it with the server's
         if(msg.game.id === $scope.serverGame.id) 
         {
-            if(msg.player === $scope.playerNum){
-                $scope.hand = [];
-                $scope.oppKm = [];
-                $scope.oppSafeties = [];
-                $scope.oppStatus = [];
-                $scope.carStatus = [];
-
-                //populate hand
-                for(var i=0; i<msg.hand.length; i++){
-                    $scope.hand.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
-                }
-                
-                //populate opposing km cards
-                for(var i=0; i<msg.board.playingArea[$scope.otherPlayerNum].km.length; i++){
-                    $scope.oppKm.push({id: i, name: msg.board.playingArea[$scope.otherPlayerNum].km[i], img: getCardImage(msg.board.playingArea[$scope.otherPlayerNum].km[i])});
-                }
-                
-                //populate opposing safety cards
-                for(var i=0; i<msg.board.playingArea[$scope.otherPlayerNum].safeties.length; i++){
-                    $scope.oppSafeties.push({id: i, name: msg.board.playingArea[$scope.otherPlayerNum].safeties[i], img: getCardImage(msg.board.playingArea[$scope.otherPlayerNum].safeties[i])});
-                }
-                
-                //populate car status cards
-                for(var i=0; i<msg.board.playingArea[$scope.playerNum].carStatus.length; i++){
-                    $scope.carStatus.push({id: i, name: msg.board.playingArea[$scope.playerNum].carStatus[i], img: getCardImage(msg.board.playingArea[$scope.playerNum].carStatus[i])});
-                }
-                
-                //populate opposing status cards
-                for(var i=0; i<msg.board.playingArea[$scope.otherPlayerNum].carStatus.length; i++){
-                    $scope.oppStatus.push({id: i, name: msg.board.playingArea[$scope.otherPlayerNum].carStatus[i], img: getCardImage(msg.board.playingArea[$scope.otherPlayerNum].carStatus[i])});
-                }
-                
+            console.log('move message received for game id: ' + msg.game.id);
             
-                
-                //msg.board.playingArea[$scope.otherPlayerNum].km
-                //msg.board.playingArea[$scope.otherPlayerNum].carStatus
-                //msg.board.playingArea[$scope.otherPlayerNum].safeties
-                //msg.board.playingArea[$scope.otherPlayerNum].speed
-            }
-        }
-        
-        
-                
-        if(msg.game.id === $scope.serverGame.id) 
-        {
-            $scope.serverGame = msg.game;
+            applyBoard(msg.board, msg.hand);
             
-            if(msg.player === $scope.playerNum){
-            
-                var consoleString = "My turn? " + $scope.isPlayerTurn + "\n" + "My Playing Area:" + "\n" +
-                                     "Hand:" + msg.hand + "\n";
-                consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
-                                     "car status:" + msg.board.playingArea[$scope.playerNum].carStatus + "\n" +
-                                     "safeties:" +msg.board.playingArea[$scope.playerNum].safeties + "\n" +
-                                     "speed:" +msg.board.playingArea[$scope.playerNum].speed + "\n" +
-                                     "score:" +msg.board.playingArea[$scope.playerNum].score + "\n";
-                
-                consoleString += "Opponent:" + "\n" +
-                                    "km:" + msg.board.playingArea[$scope.otherPlayerNum].km + "\n" +
-                                     "car status:" + msg.board.playingArea[$scope.otherPlayerNum].carStatus + "\n" +
-                                     "safeties:" +msg.board.playingArea[$scope.otherPlayerNum].safeties + "\n" +
-                                     "speed:" +msg.board.playingArea[$scope.otherPlayerNum].speed + "\n" +
-                                     "score:" +msg.board.playingArea[$scope.otherPlayerNum].score + "\n";
-                                     
-                                     
-                $scope.console = consoleString;
-        
-        }
-        
-        //IDEA - Check here if the previous move was either a safety or satisfies conditions
-        //for a coup-forre
-        
-        //socket.emit('checkForSpecialMove', {});
-        
-        
-        
-        //workaround to get Angular to play nice with Socket.io
-        //this actually applies the value so that the corresponding element will react
-            $scope.isPlayerTurn = ($scope.serverGame.turn === $scope.playerNum);
-            
-            $scope.$apply();
-            
-        
         }
         
         
@@ -191,7 +112,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     //This is a validation handler when the server fires a movesuccessful message.
     //It also ends the player's turn.
     
-    //TODO - could be modified to handle extra turns due to safeties...
+    //The msg contains a success value as well as references to the game, board and hand 
     
     
     socket.on('movesuccessful', function(msg)
@@ -201,9 +122,8 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                 $scope.isPlayerTurn = false;
                 $scope.moveToBox($scope.droppedElementID, $scope.dropAreaID);
                 
+                applyBoard(msg.board, msg.hand);
                 
-                
-                //TODO - check for a win?
             }
         });
 
@@ -215,54 +135,26 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     */
     
     socket.on('joingame', function(msg) {
+        
+        //set up initial game state
         console.log("joined as game id: " + msg.game.id );   
         $scope.playerNum = msg.player;
         console.log($scope.playerNum);
         $scope.playerNum === 0 ? $scope.otherPlayerNum = 1 : $scope.otherPlayerNum = 0;
-        
-        
-        //change to hand once other changes are made
-        for(var i=0; i<msg.hand.length; i++){
-            //$scope.items.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
-            $scope.hand.push({id: i, name: msg.hand[i], img: getCardImage(msg.hand[i])});
-        }
-        
-        
-        
-        var consoleString = "My turn? " + $scope.isPlayerTurn + "\n" + "My Playing Area:" + "\n" +
-                             "Hand:" + msg.hand + "\n";
-        consoleString += "km:" + msg.board.playingArea[$scope.playerNum].km + "\n" +
-                             "car status:" + msg.board.playingArea[$scope.playerNum].carStatus + "\n" +
-                             "safeties:" +msg.board.playingArea[$scope.playerNum].safeties + "\n" +
-                             "speed:" +msg.board.playingArea[$scope.playerNum].speed + "\n" +
-                             "score:" +msg.board.playingArea[$scope.playerNum].score + "\n";
-        
-        consoleString += "Opponent:" + "\n" +
-                            "km:" + msg.board.playingArea[$scope.otherPlayerNum].km + "\n" +
-                             "car status:" + msg.board.playingArea[$scope.otherPlayerNum].carStatus + "\n" +
-                             "safeties:" +msg.board.playingArea[$scope.otherPlayerNum].safeties + "\n" +
-                             "speed:" +msg.board.playingArea[$scope.otherPlayerNum].speed + "\n" +
-                             "score:" +msg.board.playingArea[$scope.otherPlayerNum].score + "\n";
-        
-    
-        
-        //workaround to get Angular to play nice with Socket.io
-        $scope.$apply(function() { 
-            $scope.showLobby = false;
-            $scope.console = consoleString;
-                
+        $scope.showLobby = false;
             
-            console.log(msg.board);
-            $scope.showGame = true; 
-            $scope.serverGame = msg.game;
-            $scope.isPlayerTurn = ($scope.playerNum === $scope.serverGame.turn);
-        });
+        console.log(msg.board);
+        $scope.showGame = true; 
+        $scope.serverGame = msg.game;
+        $scope.isPlayerTurn = ($scope.playerNum === $scope.serverGame.turn);
+        
+        applyBoard(msg.board, msg.hand);
+        
         
     });
 
 
     //MENU AND SETUP (WEB ELEMENT INTERACTION STUFF)
-
 
     var updateGamesList = function() {
         document.getElementById('gamesList').innerHTML = '';
@@ -301,6 +193,9 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
          updateUserList();
      };
     
+    //OTHER UTILITIES
+    
+    //given the cardName string/number, return the filepath of the matching asset
     var getCardImage = function(cardName){
         var cardNames = [200, 100, 75, 50, 25, 'GS','ST', 'RP','GO','OOG','FLT','ACC','STP','SPDL', 'ENDSL', 'RGTWAY', 'DRVACE', 'PNCPRF', 'EXTANK'];
         var index = cardNames.indexOf(cardName);
@@ -311,7 +206,66 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         return 'assets/mm_card_'+fileNames[index]+'.jpg';
     }
     
-    //--------Experimental - drag/drop implementation-----------
+    //given the board (game state), apply it to the scope for immediate updating
+    var applyBoard = function(board, hand){
+        
+        //empty the scope's card containers
+        $scope.hand = [];
+        $scope.oppKm = [];
+        $scope.oppSafeties = [];
+        $scope.oppStatus = [];
+        $scope.carStatus = [];
+
+        //populate hand
+        for(var i=0; i<hand.length; i++){
+            $scope.hand.push({id: i, name: hand[i], img: getCardImage(hand[i])});
+        }
+                
+        //populate opposing km cards
+        for(var i=0; i<board.playingArea[$scope.otherPlayerNum].km.length; i++){
+            $scope.oppKm.push({id: i, name: board.playingArea[$scope.otherPlayerNum].km[i], img: getCardImage(board.playingArea[$scope.otherPlayerNum].km[i])});
+        }
+                
+        //populate opposing safety cards
+        for(var i=0; i<board.playingArea[$scope.otherPlayerNum].safeties.length; i++){
+            $scope.oppSafeties.push({id: i, name: board.playingArea[$scope.otherPlayerNum].safeties[i], img: getCardImage(board.playingArea[$scope.otherPlayerNum].safeties[i])});
+        }
+                
+        //populate car status cards
+        for(var i=0; i<board.playingArea[$scope.playerNum].carStatus.length; i++){
+            $scope.carStatus.push({id: i, name: board.playingArea[$scope.playerNum].carStatus[i], img: getCardImage(board.playingArea[$scope.playerNum].carStatus[i])});
+        }
+                
+        //populate opposing status cards
+        for(var i=0; i<board.playingArea[$scope.otherPlayerNum].carStatus.length; i++){
+            $scope.oppStatus.push({id: i, name: board.playingArea[$scope.otherPlayerNum].carStatus[i], img: getCardImage(board.playingArea[$scope.otherPlayerNum].carStatus[i])});
+        }
+                
+        //edit the consoleString for debugging purposes    
+        var consoleString = "My turn? " + $scope.isPlayerTurn + "\n" + "My Playing Area:" + "\n" +
+                                     "Hand:" + hand + "\n";
+        consoleString += "km:" + board.playingArea[$scope.playerNum].km + "\n" +
+                                     "car status:" + board.playingArea[$scope.playerNum].carStatus + "\n" +
+                                     "safeties:" +board.playingArea[$scope.playerNum].safeties + "\n" +
+                                     "speed:" +board.playingArea[$scope.playerNum].speed + "\n" +
+                                     "score:" +board.playingArea[$scope.playerNum].score + "\n";
+                
+        consoleString += "Opponent:" + "\n" +
+                                    "km:" + board.playingArea[$scope.otherPlayerNum].km + "\n" +
+                                     "car status:" + board.playingArea[$scope.otherPlayerNum].carStatus + "\n" +
+                                     "safeties:" +board.playingArea[$scope.otherPlayerNum].safeties + "\n" +
+                                     "speed:" +board.playingArea[$scope.otherPlayerNum].speed + "\n" +
+                                     "score:" +board.playingArea[$scope.otherPlayerNum].score + "\n";
+                                     
+                                     
+        $scope.console = consoleString;
+        
+        //apply the changes in this scope
+        $scope.$apply();
+        
+    }
+    
+    //--------drag/drop implementation-----------
      
     // arrays for dropped items
     $scope.discard = [];  //area 0 
