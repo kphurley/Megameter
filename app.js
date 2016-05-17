@@ -61,7 +61,7 @@ io.on('connection', function(socket) {
     console.log('New connection');
     
     //socket.broadcast.emit('map', DEFAULT_MAP);
- 
+    
     socket.on('message', function(msg) {
         console.log('Got message from client: ' + msg);
         socket.broadcast.emit('response', msg);
