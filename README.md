@@ -22,13 +22,13 @@ These articles were highly informative and I want to thank both of these authors
 
 # Version History
 0.01 - Most UI elements and logic working, but still not in a playable state yet.  
+0.02 - Almost all of the logic for playing a hand is done - except for coup-forres.  Score counters and turn highlighters added, but still no handler for when the game ends, which means it's still not quite playable yet.
 
 # Major features still missing
 
- - Issues with safeties: They should take off the current hazard when played, if the hazard type matches the safety (they don’t currently),
-they should allow another turn (they don’t currently), coup-forres aren’t implemented at all
+- Coup-forres aren’t implemented at all (they will be soon!)
 
-- Score is never calculated/the game doesn’t end
+- The game doesn’t end properly yet
 
 - The game doesn’t reshuffle and re-deal once a hand ends
 
@@ -36,7 +36,7 @@ they should allow another turn (they don’t currently), coup-forres aren’t im
 
 - The deck is balanced for four players.  Might need to remove some attack cards from the deck until four players is implemented.
 
-- Game UI issues: Dropping cards onto status piles doesn’t work - might make the container divs slightly larger as a workaround for now, there’s no clear indicator that it’s your turn, score/mileage counter is not implemented
+- The area that you have to drag a card to is tiny - working on improving the interface so that it's clear where to drag cards
 
 # How to Play
 
