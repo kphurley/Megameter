@@ -33,8 +33,15 @@
     <div id='page-game' ng-show="showGame">
         
         <div class="outerContainer">
-
+            <div class="nameContainer">
+                <div id="userName" ng-style="userTurnStyle">{{userName}} Score: {{userScore}}</div>
+            
+                <div id="opponentName" ng-style="opponentTurnStyle">{{opponentName}} Score: {{opponentScore}}</div> 
+                
+            </div>                                
+                                                                          
             <div id="playerContainer">
+                
             <!-- usage of the DropTarget directive -->
                 <div id="carStatusBox" dd-drop-target="true">
 
@@ -62,7 +69,7 @@
             </div>
 
             <div id="opponentContainer">
-
+                
                <div id="oppStatusBox" dd-drop-target="true">
                    <span class="droppedItem"><img src="{{oppStatus[oppStatus.length-1].img}}"></span>
                </div>
@@ -79,7 +86,9 @@
                     </span>
                </div>
 
-               <div id="oppSpeedBox"></div>
+               <div id="oppSpeedBox" dd-drop-target="true">
+                   <span class="droppedItem"><img src="{{oppSpeed[oppSpeed.length-1].img}}"></span>
+               </div>
 
 
             </div>

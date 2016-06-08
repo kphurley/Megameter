@@ -122,7 +122,7 @@ io.on('connection', function(socket) {
         console.log(megameter.game.turn);
     });
     
-    //TODO - MAJOR ISSUE - TURN SWITCHING NOT WORKING AT ALL
+    
     
     socket.on('move', function(msg) {
         
@@ -162,13 +162,22 @@ io.on('connection', function(socket) {
                 var nextCard = thisGame.deck.dealOne();
                 if(nextCard !== null)
                     activeHand.push(nextCard);
+                
+                //send this to the caller to tell them their move was successful and apply any updates to the game state
+                var handToSend;
+                
+                //if a safety was played, the mover's hand is still the active one, so send them the other hand
+                thisGame.safetyWasPlayed ? handToSend = otherHand : handToSend = activeHand;
 
                 //send out game state info - TODO - should only call this once - make it so player matches whose turn it is?
-                socket.broadcast.emit('move', {game: thisGame.game, board: thisGame.board, hand: activeHand});
+                socket.broadcast.emit('move', {game: thisGame.game, board: thisGame.board, hand: handToSend});
                 //socket.broadcast.emit('move', {game: thisGame.game, board: thisGame.board, hand: thisGame.hands.hand1, player: 1});
 
-                //send this to the caller to tell them it's no longer their turn
-                socket.emit('movesuccessful', {success: true, game: thisGame.game, board: thisGame.board, hand: otherHand});
+                //if a safety was played, their hand is still the active one, otherwise send them the other hand
+                thisGame.safetyWasPlayed ? handToSend = activeHand : handToSend = otherHand;
+                
+                //send back a confirmation after the move
+                socket.emit('movesuccessful', {success: true, game: thisGame.game, board: thisGame.board, hand: handToSend});
                 console.log(thisGame.game.turn);
             }
         }
@@ -263,10 +272,11 @@ Megameter.prototype.validateMove = function(card, area, player){
     if(Number(area) === 0) return true;  //discard is always ok 
     
     if(Number(area) === 1 && typeof desiredCard === 'number' && status === 'GO')  {
-        var answer;
-        (this.board.playingArea[player].speed.length === 0 || 
-        this.board.playingArea[player].speed[this.board.playingArea[player].speed.length-1] === 'ENDSL') ? answer = true : answer = desiredCard <= 50;
-        return answer;
+        var didObeySpeedLimit;
+        this.board.playingArea[player].speed[this.board.playingArea[player].speed.length-1] === 'ENDSL' ? 
+            didObeySpeedLimit = true : didObeySpeedLimit = desiredCard <= 50;
+        
+        return this.board.playingArea[player].speed.length === 0 || didObeySpeedLimit;
     }
     
     if(Number(area) === 2)  //remedy
@@ -340,12 +350,24 @@ Megameter.prototype.playCard = function(card, area, player){
             this.board.playingArea[player].km.push(desiredCard);
             break;
         case 2:
+            //remedy
             this.board.playingArea[player].carStatus.push(desiredCard);
+            
+            //push a GO onto the carStatus stack if they have right of way
+            if(this.board.playingArea[player].safeties.indexOf('RGTWAY') > -1)
+                this.board.playingArea[player].carStatus.push('GO');   
+            
             break;
         case 3:
             this.board.playingArea[player].safeties.push(desiredCard);
-            //TODO - remove matching hazard card from pile and take a bonus turn
+            
+            //Remove matching hazard card from pile and take a bonus turn
             this.safetyWasPlayed = this.applySafetyEffects(desiredCard, player);
+            
+            //push a GO onto the carStatus stack if they have right of way and there is no hazard present
+            if(this.board.playingArea[player].safeties.indexOf('RGTWAY') > -1 && this.noHazardLeft(player))
+                this.board.playingArea[player].carStatus.push('GO'); 
+            
             break;
         case 4:
             this.board.playingArea[player].speed.push(desiredCard);
@@ -428,12 +450,26 @@ Megameter.prototype.applySafetyEffects = function(card, playerNum){
     //splice off the last card off the status pile if it's the corresponding attack card
     if(statusPile[statusLen-1] === attackTypes[index]) statusPile.splice(statusLen-1, 1);
     
-    //TODO:  Apply a GO effect if the safety played is Right of Way
-    if(card === 'RGTWAY') statusPile.push('GO');
+    //TODO:  Apply a GO effect if the safety played is Right of Way and no hazards are still there
+    if(card === 'RGTWAY' && this.noHazardLeft(playerNum)) statusPile.push('GO');
     
     return true; //a safety was successfully played
 }
 
+
+Megameter.prototype.noHazardLeft = function(playerNum) {
+    
+    //convenience variables for use later
+    var statusPile = this.board.playingArea[playerNum].carStatus;
+    var attackTypes = ['STP', 'ACC', 'FLT', 'OOG'];
+    
+    for(var i=0; i<attackTypes.length; i++)
+       if(statusPile[statusPile.length-1] === attackTypes[i])
+           return false;
+    
+    return true;
+    
+}
 
 //======== DECK FUNCTIONALITY ==============
 
@@ -495,6 +531,18 @@ Deck.prototype.dealOne = function(){
     
     return null;
 };
+
+//Need a toString method for each card for logging purposes (changes from the code to the name)
+//Be careful to rename the safety cards to match the art
+/**
+ *  CARD TYPES:
+ *  25, 50, 75, 100, 200 = km cards (numbers)
+ *  Gas, Spare Tire, Repairs, Go = remedy cards ==> 'GS', 'ST', 'RP', 'GO'
+ *  Out of Gas, Flat Tire, Accident, Stop = attack cards ==> 'OOG', 'FLT', 'ACC', 'STP'
+ *  Speed Limit = speed attack card ==> 'SPDL'
+ *  End of Speed Limit = speed card ==> 'ENDSL'
+ *  Priority Vehicle, Ace Driver, Kevlar Tires, Spare Gas Tank - Safeties ==> 'RGTWAY', 'DRVACE', 'PNCPRF', 'EXTANK'  
+ */
 
 function shuffle(a) {
     var j, x, i;

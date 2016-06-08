@@ -8,6 +8,17 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     //the user's chosen username
     $scope.userName = '';
     
+    //This user's current opponent
+    $scope.opponentName = '';
+    
+    //Score holders
+    $scope.userScore = 0;
+    $scope.opponentScore = 0;
+    
+    //Objects that map to a CSS custom style indicating whose turn it is
+    $scope.userTurnStyle = {};
+    $scope.opponentTurnStyle = {};
+    
     //bools to control app state
     $scope.showLogin = true;
     $scope.showLobby = false;
@@ -102,7 +113,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         {
             console.log('move message received for game id: ' + msg.game.id);
             
-            applyBoard(msg.board, msg.hand);
+            applyBoard(msg.game, msg.board, msg.hand);
             
         }
         
@@ -122,7 +133,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                 $scope.isPlayerTurn = false;
                 $scope.moveToBox($scope.droppedElementID, $scope.dropAreaID);
                 
-                applyBoard(msg.board, msg.hand);
+                applyBoard(msg.game, msg.board, msg.hand);
                 
             }
         });
@@ -140,15 +151,18 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         console.log("joined as game id: " + msg.game.id );   
         $scope.playerNum = msg.player;
         console.log($scope.playerNum);
-        $scope.playerNum === 0 ? $scope.otherPlayerNum = 1 : $scope.otherPlayerNum = 0;
+        $scope.playerNum === 0 ? 
+            ($scope.otherPlayerNum = 1, $scope.userName = msg.game.users.player1, $scope.opponentName = msg.game.users.player2 ) : 
+            ($scope.otherPlayerNum = 0, $scope.userName = msg.game.users.player2, $scope.opponentName = msg.game.users.player1 );
         $scope.showLobby = false;
             
         console.log(msg.board);
         $scope.showGame = true; 
         $scope.serverGame = msg.game;
+        
         $scope.isPlayerTurn = ($scope.playerNum === $scope.serverGame.turn);
         
-        applyBoard(msg.board, msg.hand);
+        applyBoard(msg.game, msg.board, msg.hand);
         
         
     });
@@ -207,7 +221,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     }
     
     //given the board (game state), apply it to the scope for immediate updating
-    var applyBoard = function(board, hand){
+    var applyBoard = function(game, board, hand){
         
         //empty the scope's card containers
         $scope.hand = [];
@@ -215,6 +229,9 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         $scope.oppSafeties = [];
         $scope.oppStatus = [];
         $scope.carStatus = [];
+        
+        $scope.speed = []; //area 4
+        $scope.oppSpeed = []; //area 6
 
         //populate hand
         for(var i=0; i<hand.length; i++){
@@ -240,7 +257,30 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         for(var i=0; i<board.playingArea[$scope.otherPlayerNum].carStatus.length; i++){
             $scope.oppStatus.push({id: i, name: board.playingArea[$scope.otherPlayerNum].carStatus[i], img: getCardImage(board.playingArea[$scope.otherPlayerNum].carStatus[i])});
         }
-                
+        
+        //populate speed cards
+        for(var i=0; i<board.playingArea[$scope.playerNum].speed.length; i++){
+            $scope.speed.push({id: i, name: board.playingArea[$scope.playerNum].speed[i], img: getCardImage(board.playingArea[$scope.playerNum].speed[i])});
+        }
+        
+        //populate opposing speed cards
+        for(var i=0; i<board.playingArea[$scope.otherPlayerNum].speed.length; i++){
+            $scope.oppSpeed.push({id: i, name: board.playingArea[$scope.otherPlayerNum].speed[i], img: getCardImage(board.playingArea[$scope.otherPlayerNum].speed[i])});
+        }
+        
+        //get the current score
+        $scope.userScore = board.playingArea[$scope.playerNum].score;
+        $scope.opponentScore = board.playingArea[$scope.otherPlayerNum].score;
+        
+        if($scope.playerNum === game.turn){
+            $scope.userTurnStyle = {'background-color' : '#2AE83A'};
+            $scope.opponentTurnStyle = {};
+        }
+        else{
+            $scope.userTurnStyle = {};
+            $scope.opponentTurnStyle = {'background-color' : '#2AE83A'};
+        }
+        
         //edit the consoleString for debugging purposes    
         var consoleString = "My turn? " + $scope.isPlayerTurn + "\n" + "My Playing Area:" + "\n" +
                                      "Hand:" + hand + "\n";

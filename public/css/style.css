@@ -224,3 +224,18 @@ body{
   list-style-type: none;
   padding-right: 20px;
 }  
+
+.nameContainer {
+    width: 100%;
+}
+
+#userName, #opponentName {
+    display: inline-block;
+    width: 630px;
+    font-weight: 800;
+    font-size: x-large;
+    margin-left: 10px;
+}
+
+
+
