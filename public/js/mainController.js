@@ -1,10 +1,12 @@
-
 // setup my socket client
 var socket = io();
 
 // the controller
-angular.module('MainCtrl', []).controller('MainController', function($scope) {
-
+//angular.module('MainCtrl', []).controller('MainController', function($scope) {
+angular.module('MainCtrl', []).controller('MainController', function($scope, modals) {
+    
+    console.log('controller loaded');
+    
     //the user's chosen username
     $scope.userName = '';
     
@@ -51,6 +53,22 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     
     //the defined area (div id) receiving the dragged element
     $scope.dropAreaID = null;
+    
+    // arrays for dropped items
+    $scope.discard = [];  //area 0 
+    $scope.km = [];  //area 1
+    $scope.carStatus = []; //area 2
+    $scope.safeties = []; //area 3
+    $scope.speed = []; //area 4
+    $scope.oppCarStatus = [];  //area 5
+    $scope.oppSpeed = []; //area 6
+    
+    // non-droppable arrays
+    $scope.oppKm = [];
+    $scope.oppSafeties = [];
+ 
+    // array of items for dragging (the hand)
+    $scope.hand = [];
     
     //called when a user puts in their username and clicks the button
     $scope.onLogin = function(){
@@ -107,6 +125,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     
     socket.on('move', function(msg) {
         
+        console.log(msg);
         
         //clear the current UI version of hand and replace it with the server's
         if(msg.game.id === $scope.serverGame.id) 
@@ -128,6 +147,8 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
     
     socket.on('movesuccessful', function(msg)
         {
+            console.log(msg);
+        
             if(msg.success) {
                 console.log('move registered successfully');
                 $scope.isPlayerTurn = false;
@@ -230,8 +251,10 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         $scope.oppStatus = [];
         $scope.carStatus = [];
         
-        $scope.speed = []; //area 4
-        $scope.oppSpeed = []; //area 6
+        $scope.speed = [];
+        $scope.oppSpeed = [];
+        
+        $scope.serverGame = game;
 
         //populate hand
         for(var i=0; i<hand.length; i++){
@@ -300,35 +323,20 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                                      
         $scope.console = consoleString;
         
+        
+        
+        if($scope.userScore === game.targetScore || $scope.opponentScore === game.targetScore){
+            alertSomething();
+        }
+        
         //apply the changes in this scope
         $scope.$apply();
         
     }
     
-    //--------drag/drop implementation-----------
-     
-    // arrays for dropped items
-    $scope.discard = [];  //area 0 
-    $scope.km = [];  //area 1
-    $scope.carStatus = []; //area 2
-    $scope.safeties = []; //area 3
-    $scope.speed = []; //area 4
-    $scope.oppCarStatus = [];  //area 5
-    $scope.oppSpeed = []; //area 6
-    
-    // non-droppable arrays
-    $scope.oppKm = [];
-    $scope.oppSafeties = [];
-    
-    //$scope.dropped = [];
- 
-    // array of items for dragging (the hand)
-    //$scope.items = [];
-    $scope.hand = [];
-    
+        
     // convertToMove - this function handles a drop request, and converts it to a move
     // to be passed to submitPlay
-    
     $scope.convertToMove = function(id, area){
         
         for (var index = 0; index < $scope.hand.length; index++) {
@@ -434,10 +442,6 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
                 
                 }
                 
-                
-  
-                       
-  
         
         // remove from hand array
         if($scope.cardIndex !== -1) $scope.hand.splice($scope.cardIndex, 1);
@@ -445,8 +449,61 @@ angular.module('MainCtrl', []).controller('MainController', function($scope) {
         
         $scope.$apply();
     };
+    
+//----------------------MODALS LOGIC --------------------
+    
+    
+    // This opens an Alert-type modal that declares the game has ended
+    var alertSomething = function() {
+        
+                    
+        // The .open() method returns a promise that will be either
+        // resolved or rejected when the modal window is closed.
+        var promise = modals.open(
+            "alert",
+            {
+                message: "GAME HAS ENDED!",
+                userName: $scope.userName,
+                userScore: $scope.userScore,
+                opponentScore: $scope.opponentScore,
+                opponentName: $scope.opponentName
+            }
+        );
+
+        promise.then(
+            function handleResolve( response ) {
+                console.log( "Alert resolved." );
+            },
+            function handleReject( error ) {
+                console.warn( "Alert rejected!" );
+            }
+        );
+        
+        $scope.showLobby = true;
+        $scope.showGame = false;
+        
+        //Completely clear scope to prep for reuse
+        // arrays for dropped items
+        $scope.discard = [];  //area 0 
+        $scope.km = [];  //area 1
+        $scope.carStatus = []; //area 2
+        $scope.safeties = []; //area 3
+        $scope.speed = []; //area 4
+        $scope.oppCarStatus = [];  //area 5
+        $scope.oppSpeed = []; //area 6
+
+        // non-droppable arrays
+        $scope.oppKm = [];
+        $scope.oppSafeties = [];
+
+        // array of items for dragging (the hand)
+        $scope.hand = [];
+        
+        //Emit to server game is finished
+        socket.emit('endRound', {game: $scope.serverGame, user: $scope.userName});
+    };
+    
 
 }); //end of controller definition
-
 
 

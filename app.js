@@ -67,7 +67,7 @@ io.on('connection', function(socket) {
         socket.broadcast.emit('response', msg);
     });
     
-    socket.on('login', function(userId) {
+    var joinLobby = function(userId) {
         console.log(userId + ' joining lobby');
         socket.userId = userId;  
      
@@ -86,6 +86,10 @@ io.on('connection', function(socket) {
         lobbyUsers[userId] = socket;
         
         socket.broadcast.emit('joinlobby', socket.userId);
+    }
+    
+    socket.on('login', function(userId) {
+        joinLobby(userId);
     });
     
     socket.on('invite', function(opponentId) {
@@ -94,11 +98,12 @@ io.on('connection', function(socket) {
         socket.broadcast.emit('leavelobby', socket.userId);
         socket.broadcast.emit('leavelobby', opponentId);
         
-        //TODO - This should call the Megameter constructor which should return an object with the intial game state
+        //Basic Game Setup - The targetScore is what we will play up to
         var game = {
             id: Math.floor((Math.random() * 100) + 1),
             users: {player1: socket.userId, player2: opponentId},
-            turn: 1
+            turn: 1,
+            targetScore: 700
         };
         
         
@@ -142,11 +147,22 @@ io.on('connection', function(socket) {
             //does the move create a winner?  if so - init the endGame state
             //note that hasWinner also tallies the score
             if(thisGame.hasWinner()){
-                var winningPlayerNum = thisGame.board.playingArea[0].score >= 1000 ? 0 : 1;
+                
+                var winningPlayerNum = thisGame.board.playingArea[0].score === thisGame.WINNING_SCORE ? 0 : 1;
                 console.log('Player ' + winningPlayerNum + ' has won');
+                
+                //change turn to -1 to indicate a winner
+                thisGame.game.turn = -1;
+                
+                //send out game state info 
+                socket.broadcast.emit('move', {game: thisGame.game, board: thisGame.board, hand: otherHand});               
+                
+                //send back a confirmation after the move
+                socket.emit('movesuccessful', {success: true, game: thisGame.game, board: thisGame.board, hand: activeHand});
+                
+                console.log(thisGame.game.turn);
             }
-            // declare winner
-            
+                        
             else{          
                 //swap whose turn it is if a safety was not played
                 if(thisGame.safetyWasPlayed === false){
@@ -183,6 +199,17 @@ io.on('connection', function(socket) {
         }
        
     });
+    
+    socket.on('endRound', function(msg){
+        
+        console.log('Ending game: ' + msg.game.id);
+        
+        delete users[msg.user].games[msg.game.id];
+        
+        joinLobby(msg.user);
+        
+        
+    })
     
     
     
@@ -235,6 +262,9 @@ var Megameter = function(game){
     // a flag to control whether or not a safety was just played for bonus turn purposes
     this.safetyWasPlayed = false;
     
+    // a constant to indicate what the winning score is
+    this.WINNING_SCORE = this.game.targetScore;
+    
 }
 
 /**
@@ -272,6 +302,12 @@ Megameter.prototype.validateMove = function(card, area, player){
     if(Number(area) === 0) return true;  //discard is always ok 
     
     if(Number(area) === 1 && typeof desiredCard === 'number' && status === 'GO')  {
+        
+        //bounds check - must hit the winning score exactly to win the round
+        var possibleScore = this.board.playingArea[player].score + desiredCard;
+        if(possibleScore > this.WINNING_SCORE) return false;
+        
+        //speed limit check
         var didObeySpeedLimit;
         this.board.playingArea[player].speed[this.board.playingArea[player].speed.length-1] === 'ENDSL' ? 
             didObeySpeedLimit = true : didObeySpeedLimit = desiredCard <= 50;
@@ -411,7 +447,7 @@ Megameter.prototype.playCard = function(card, area, player){
          this.board.playingArea[1].score += this.board.playingArea[1].km[j];
      }
      
-     return this.board.playingArea[0].score >= 1000 || this.board.playingArea[1].score >= 1000;
+     return this.board.playingArea[0].score === this.WINNING_SCORE || this.board.playingArea[1].score === this.WINNING_SCORE;
     
 };
 

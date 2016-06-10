@@ -1,6 +1,6 @@
 <!-- public/views/home.html -->
 
-<div ng-controller="MainController">
+<div>
 
     <div class="jumbotron login" id='page-login' ng-show="showLogin">
         <h2>Welcome to Megameter!</h2>
@@ -29,6 +29,8 @@
             </div>
         </div>
     </div>
+    
+    <!-- THE MAIN GAME VIEW -->
     
     <div id='page-game' ng-show="showGame">
         
@@ -113,6 +115,8 @@
 
         </div>
         
+        
+        
         <div>
             
             <div class="form-group">
@@ -125,6 +129,36 @@
         
         
     </div> 
+    
+    <!-- END OF MAIN GAME VIEW -->
+    
+    <!-- MODAL WINDOW LAYOUTS -->
+    
+    <div bn-modals ng-show="subview" class="m-modals" ng-switch="subview">
+       
+        <!-- ALERT MODAL -->
+        <div ng-switch-when="alert" ng-controller="AlertModalController" class="modal">
+            <p> 
+                {{ message }} 
+            </p>
+            
+            <p> 
+                {{ userName}} Score:  {{ userScore }} 
+            </p>
+            
+            <p> 
+                {{ opponentName }} Score: {{ opponentScore }} 
+            </p>
+            
+            
+            <p> 
+                <a ng-click="close()">Close this window</a>
+            </p>
+        </div>
+        
+    </div>
+    
+    
 </div>
 
 

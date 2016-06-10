@@ -1,5 +1,5 @@
-
-angular.module('megameter', ['ngRoute', 'appRoutes', 'MainCtrl'])
+angular.module('megameter', ['ngRoute', 'appRoutes', 'MainCtrl', 'ModalsModule'])
+//angular.module('megameter', ['ngRoute', 'appRoutes', 'MainCtrl'])
     .directive("ddDraggable", Draggable)
     .directive("ddDropTarget", DropTarget); 
 
