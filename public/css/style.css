@@ -124,6 +124,20 @@ body{
     background: rgba(240, 0, 0, 0.5);
     width: 150px;
     min-height: 220px;
+    z-index: 1;
+    
+}
+
+#discard_temp {
+    
+    right: 50px;
+    top: 5px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 150px;
+    min-height: 220px;
+    z-index: 2;
     
 }
 
@@ -136,6 +150,21 @@ body{
     background: rgba(255, 255, 255, 1);
     width: 450px;
     min-height: 220px;
+    z-index: 1;
+    
+}
+
+#kmBox_temp{
+    
+    padding-left: 70px;
+    right: 10px;
+    top: 10px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 450px;
+    min-height: 220px;
+    z-index: 2;
     
 }
 
@@ -147,6 +176,20 @@ body{
     background: rgba(255, 255, 255, 1);
     width: 150px;
     min-height: 220px;
+    z-index: 1;
+    
+}
+
+#carStatusBox_temp{
+    
+    left: 10px;
+    top: 10px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 150px;
+    min-height: 220px;
+    z-index: 2;
     
 }
 
@@ -159,6 +202,21 @@ body{
     background: rgba(255, 255, 255, 1);
     width: 450px;
     min-height: 220px;
+    z-index: 1;
+    
+}
+
+#safetyBox_temp{
+    
+    padding-left: 70px;
+    right: 10px;
+    bottom: 10px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 450px;
+    min-height: 220px;
+    z-index: 2;
     
 }
 
@@ -170,6 +228,20 @@ body{
     background: rgba(255, 255, 255, 1);
     width: 150px;
     min-height: 220px;
+    z-index: 1;
+    
+}
+
+#speedBox_temp{
+    
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 150px;
+    min-height: 220px;
+    z-index: 2;
     
 }
 
@@ -181,6 +253,20 @@ body{
     background: rgba(255, 255, 255, 1);
     width: 150px;
     min-height: 220px;
+    z-index: 1;
+    
+}
+
+#oppStatusBox_temp{
+    
+    left: 10px;
+    top: 10px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 150px;
+    min-height: 220px;
+    z-index: 2;
     
 }
 
@@ -192,9 +278,22 @@ body{
     background: rgba(255, 255, 255, 1);
     width: 150px;
     min-height: 220px;
+    z-index: 1;
     
 }
 
+#oppSpeedBox_temp{
+    
+    left: 10px;
+    bottom: 10px;
+    position: absolute;
+    background-color: greenyellow;
+    opacity: 0.5;
+    width: 150px;
+    min-height: 220px;
+    z-index: 2;
+    
+}
 
 
  

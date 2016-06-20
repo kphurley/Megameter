@@ -54,6 +54,17 @@ angular.module('MainCtrl', []).controller('MainController', function($scope, mod
     //the defined area (div id) receiving the dragged element
     $scope.dropAreaID = null;
     
+    //a field for when an object is being dragged
+    $scope.dragging = false;
+    
+    $scope.enableDragContent = function() {
+        $scope.dragging = true;
+    }
+    
+    $scope.disableDragContent = function() {
+        $scope.dragging = false;
+    }
+    
     // arrays for dropped items
     $scope.discard = [];  //area 0 
     $scope.km = [];  //area 1
@@ -246,6 +257,7 @@ angular.module('MainCtrl', []).controller('MainController', function($scope, mod
         
         //empty the scope's card containers
         $scope.hand = [];
+        $scope.discard = [];  
         $scope.oppKm = [];
         $scope.oppSafeties = [];
         $scope.oppStatus = [];
@@ -259,6 +271,11 @@ angular.module('MainCtrl', []).controller('MainController', function($scope, mod
         //populate hand
         for(var i=0; i<hand.length; i++){
             $scope.hand.push({id: i, name: hand[i], img: getCardImage(hand[i])});
+        }
+        
+        //populate discard pile
+        for(var i=0; i<board.discard.length; i++){
+            $scope.discard.push({id: i, name: board.discard[i], img: getCardImage(board.discard[i])});
         }
                 
         //populate opposing km cards

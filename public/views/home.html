@@ -43,34 +43,39 @@
             <div id="playerContainer">
                 
             <!-- usage of the DropTarget directive -->
-                <div id="carStatusBox" dd-drop-target="true">
+                <div id="carStatusBox">
 
                     <!--Just want the last card to show-->
                     <span class="droppedItem"><img src="{{carStatus[carStatus.length-1].img}}"></span>
 
                 </div>
 
-                <div id="kmBox" dd-drop-target="true">
+                <div id="kmBox">
                     <span ng-repeat="card in km">
                         <span class="item" itemid="{{card.id}}"><img src="{{card.img}}"></span>
                     </span>
                 </div>
 
-                <div id="safetyBox" dd-drop-target="true">
+                <div id="safetyBox">
                     <span ng-repeat="card in safeties">
                         <span class="item" itemid="{{card.id}}"><img src="{{card.img}}"></span>
                     </span>
                 </div>
 
-                <div id="speedBox" dd-drop-target="true">
+                <div id="speedBox">
                     <span class="droppedItem"><img src="{{speed[speed.length-1].img}}"></span>
                 </div>
+                
+                <div id="carStatusBox_temp" ng-show="dragging" dd-drop-target="true"></div>
+                <div id="kmBox_temp" ng-show="dragging" dd-drop-target="true"></div>
+                <div id="safetyBox_temp" ng-show="dragging" dd-drop-target="true"></div>
+                <div id="speedBox_temp" ng-show="dragging" dd-drop-target="true"></div>
 
             </div>
 
             <div id="opponentContainer">
                 
-               <div id="oppStatusBox" dd-drop-target="true">
+               <div id="oppStatusBox">
                    <span class="droppedItem"><img src="{{oppStatus[oppStatus.length-1].img}}"></span>
                </div>
 
@@ -86,9 +91,12 @@
                     </span>
                </div>
 
-               <div id="oppSpeedBox" dd-drop-target="true">
+               <div id="oppSpeedBox">
                    <span class="droppedItem"><img src="{{oppSpeed[oppSpeed.length-1].img}}"></span>
                </div>
+               
+               <div id="oppStatusBox_temp" ng-show="dragging" dd-drop-target="true"></div>
+               <div id="oppSpeedBox_temp" ng-show="dragging" dd-drop-target="true"></div>
 
 
             </div>
@@ -104,9 +112,11 @@
 
                 </div>
                 
-                <div id="discard" dd-drop-target="true">
+                <div id="discard">
                     <span class="droppedItem"><img src="{{discard[discard.length-1].img}}"></span>
                 </div>
+                
+                <div id="discard_temp" ng-show="dragging" dd-drop-target="true"></div>
 
             </div>
 

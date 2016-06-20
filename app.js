@@ -241,7 +241,7 @@ var Megameter = function(game){
         
         playingArea: [
             {
-                discard: [],
+                //discard: [],
                 km: [],
                 carStatus: [],
                 safeties: [],
@@ -249,14 +249,16 @@ var Megameter = function(game){
                 score: 0
             },
             {
-                discard: [],
+                //discard: [],
                 km: [],
                 carStatus: [],
                 safeties: [],
                 speed: [],
                 score: 0
             },
-        ]
+        ],
+        
+        discard: []
     };
     
     // a flag to control whether or not a safety was just played for bonus turn purposes
@@ -381,6 +383,7 @@ Megameter.prototype.playCard = function(card, area, player){
     switch(Number(area)){
         
         case 0:
+            this.board.discard.push(desiredCard);
             break;
         case 1:
             this.board.playingArea[player].km.push(desiredCard);
